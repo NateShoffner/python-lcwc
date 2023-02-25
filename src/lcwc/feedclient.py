@@ -38,7 +38,7 @@ class IncidentFeedClient(Client):
     URL = 'https://webcad.lcwc911.us/Pages/Public/LiveIncidentsFeed.aspx'
     """ The URL of the live incident feed """
 
-    FIRE_UNIT_NAMES = ['BRUSH', 'CHIEF', 'DEPUTY', 'DUTY OFFICER', 'ENGINE', 'RESCUE', 'SQUAD', 'TRUCK', 'UTV']
+    FIRE_UNIT_NAMES = ['BRUSH', 'CHIEF', 'DEPUTY', 'DUTY OFFICER', 'ENGINE', 'FIRE POLICE', 'RESCUE', 'SQUAD', 'TRUCK', 'UTV']
     MEDICAL_UNIT_NAMES = ['AMB', 'EMS', 'INT', 'MEDIC', 'QRS']
 
     LOCATION_NAMES = ['ALY', 'AVE', 'CIR', 'CT', 'DR', 'LN', 'PL', 'PIKE', 'RAMP', 'RD', 'ROUTE', 'ST']
