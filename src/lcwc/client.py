@@ -19,3 +19,7 @@ class Client(ABC):
     def parse(self, contents: bytes) -> list[Incident]:
         """ Parses the contents of the page and returns a list of incidents """
         pass
+
+    @abstractmethod
+    def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int) -> list[Incident]:
+        pass

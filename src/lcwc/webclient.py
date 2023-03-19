@@ -82,3 +82,8 @@ class IncidentWebClient(Client):
                 incidents.append(incident)
 
         return incidents
+
+    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int) -> list[Incident]:
+        result = await self.fetch(session)
+        active_incidents = self.parse(result)
+        return active_incidents

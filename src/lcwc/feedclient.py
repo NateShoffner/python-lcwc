@@ -120,6 +120,11 @@ class IncidentFeedClient(Client):
 
         return incidents
 
+    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int) -> list[FeedIncident]:
+        result = await self.fetch(session)
+        active_incidents = self.parse(result)
+        return active_incidents
+
     def __determine_category(self, description: str, units: list[str]) -> IncidentCategory:
         """ Determines the category of an incident based on the description and units assigned """
 
