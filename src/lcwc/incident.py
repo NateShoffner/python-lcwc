@@ -64,3 +64,8 @@ class Incident:
     def units(self) -> list[str]:
         """ Returns a list of units responding to the incident """
         return self._units
+
+    @property
+    def units_pending(self) -> bool:
+        """ Returns true if the incident has units pending """
+        return any([unit == 'PENDING' for unit in self._units])
