@@ -20,14 +20,14 @@ class IncidentWebClient(Client):
     def __init__(self):
         super().__init__()
 
-    async def fetch(self, session: aiohttp.ClientSession) -> bytes:
+    async def fetch(self, session: aiohttp.ClientSession, timeout: int = 10) -> bytes:
         """ Gets the live incident page and returns the html as bytes
 
         :return: The html of the live incident page
         :rtype: bytes
         """
         async with session:
-            html = await super().fetch(session, 10)
+            html = await super().fetch(session, timeout)
             return html
 
     def parse(self, page_html: bytes) -> list[Incident]:
@@ -83,7 +83,7 @@ class IncidentWebClient(Client):
 
         return incidents
 
-    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int) -> list[Incident]:
+    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[Incident]:
         result = await self.fetch(session)
         active_incidents = self.parse(result)
         return active_incidents
