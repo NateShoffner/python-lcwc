@@ -1,0 +1,28 @@
+[project]
+name = "lcwc"
+version = "0.2"
+authors = [
+  { name="Nate Shoffner", email="nate.shoffner@gmail.com" },
+]
+description = "Python library for fetching the Lancaster County-Wide Communications live incident list."
+keywords = ["lcwc", "lancaster", "police", "fire", "ems", "dispatch", "911", "incident"]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "bs4", 
+    "aiohttp", 
+    "feedparser"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.urls]
+"Homepage" = "https://github.com/NateShoffner/python-lcwc"
+"Bug Tracker" = "https://github.com/NateShoffner/python-lcwc/issues"
