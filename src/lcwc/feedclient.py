@@ -61,14 +61,14 @@ class IncidentFeedClient(Client):
             contents = await self.fetch(session)
             return self.parse(contents)
 
-    async def fetch(self, session: aiohttp.ClientSession) -> bytes:
+    async def fetch(self, session: aiohttp.ClientSession, timeout: int = 10) -> bytes:
         """ Gets the live incident feed and returns the xml as bytes
 
         :return: The xml of the live incident feed
         :rtype: bytes
         """
         async with session:
-            html = await super().fetch(session, 10)
+            html = await super().fetch(session, timeout)
             return html
 
     def parse(self, contents: bytes) -> list[FeedIncident]:
@@ -121,7 +121,7 @@ class IncidentFeedClient(Client):
         return incidents
 
     async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int) -> list[FeedIncident]:
-        result = await self.fetch(session)
+        result = await self.fetch(session, timeout)
         active_incidents = self.parse(result)
         return active_incidents
 
