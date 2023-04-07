@@ -5,8 +5,7 @@ from lcwc.client import Client
 
 async def get_incidents(client: Client):
     async with aiohttp.ClientSession() as session:
-        result = await client.fetch(session)
-        incidents = client.parse(result)
+        incidents = client.fetch_and_parse(session)
 
         for incident in incidents:
             print("-----")

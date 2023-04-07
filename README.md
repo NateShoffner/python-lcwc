@@ -20,7 +20,7 @@ from lcwc import webclient
 client = webclient.IncidentWebClient()
 
 async with aiohttp.ClientSession() as session:
-    incidents = client.fetch_and_parse(session, result)
+    incidents = client.fetch_and_parse(session)
 
     for incident in incidents:
         print(f'Date: {incident.date}')
