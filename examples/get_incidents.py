@@ -1,11 +1,14 @@
 import aiohttp
 import asyncio
-from lcwc import feedclient, webclient
+from lcwc import feedclient
 from lcwc.client import Client
 
-async def get_incidents(client: Client):
+async def main():
+
+    client = feedclient.IncidentFeedClient()
+    
     async with aiohttp.ClientSession() as session:
-        incidents = client.fetch_and_parse(session)
+        incidents = await client.fetch_and_parse(session)
 
         for incident in incidents:
             print("-----")
@@ -20,15 +23,7 @@ async def get_incidents(client: Client):
             if isinstance(incident, feedclient.FeedIncident):
                 print(f'GUID: {incident.guid}')
 
-        print("-----")          
-
-async def main():
-    
-    #print('Web Client:')
-    #await get_incidents(webclient.IncidentWebClient())
-    
-    print("Feed Client:")
-    await get_incidents(feedclient.IncidentFeedClient())
+        print("-----")     
 
 if __name__ == '__main__':
     asyncio.run(main())
