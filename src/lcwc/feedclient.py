@@ -46,24 +46,11 @@ class IncidentFeedClient(Client):
     def __init__(self):
         super().__init__()
 
-    async def get_incidents(self, session: aiohttp.ClientSession = None) -> list[FeedIncident]:
-        """ Gets the live incident feed and returns a list of incidents
-
-        :return: A list of incidents
-        :rtype: list[Incident]
-
-        :param session: An optional aiohttp session to use
-        """
-
-        if session is None:
-            session = aiohttp.ClientSession()
-        async with aiohttp.ClientSession() as session:    
-            contents = await self.fetch(session)
-            return self.parse(contents)
-
     async def fetch(self, session: aiohttp.ClientSession, timeout: int = 10) -> bytes:
         """ Gets the live incident feed and returns the xml as bytes
 
+        :param session: The aiohttp session to use
+        :param timeout: The timeout in seconds
         :return: The xml of the live incident feed
         :rtype: bytes
         """
@@ -72,8 +59,7 @@ class IncidentFeedClient(Client):
             return html
 
     def parse(self, contents: bytes) -> list[FeedIncident]:
-        """
-        Parses the live incident feed and returns a list of incidents
+        """ Parses the live incident feed and returns a list of incidents
 
         :param contents: The xml of the live incident feed
         :return: A list of incidents
@@ -121,12 +107,25 @@ class IncidentFeedClient(Client):
         return incidents
 
     async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[FeedIncident]:
+        """ Gets the live incident feed and returns a list of incidents
+
+        :param session: The aiohttp session to use
+        :param timeout: The timeout for the request
+        :return: A list of incidents
+        :rtype: list[Incident]
+        """
         result = await self.fetch(session, timeout)
         active_incidents = self.parse(result)
         return active_incidents
 
     def __determine_category(self, description: str, units: list[str]) -> IncidentCategory:
-        """ Determines the category of an incident based on the description and units assigned """
+        """ Determines the category of an incident based on the description and units assigned 
+        
+        :param description: The description of the incident
+        :param units: The units assigned to the incident
+        :return: The category of the incident
+        :rtype: IncidentCategory
+        """
 
         # check for unit matches 
         for unit in units:
