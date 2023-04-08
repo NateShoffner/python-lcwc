@@ -15,12 +15,12 @@ The library features both a web scraper and a RSS feed parser. The web scraper c
 ```python
 
 import aiohttp
-from lcwc import webclient
+from lcwc import feedclient
 
-client = webclient.IncidentWebClient()
+client = webclient.IncidentFeedClient()
 
 async with aiohttp.ClientSession() as session:
-    incidents = client.fetch_and_parse(session)
+    incidents = await client.fetch_and_parse(session)
 
     for incident in incidents:
         print(f'Date: {incident.date}')

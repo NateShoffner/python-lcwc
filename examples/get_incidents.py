@@ -1,7 +1,6 @@
 import aiohttp
 import asyncio
 from lcwc import feedclient
-from lcwc.client import Client
 
 async def main():
 
