@@ -21,7 +21,7 @@ async with aiohttp.ClientSession() as session:
     incidents = await client.fetch_and_parse(session)
 
     for incident in incidents:
-        print(f'Date: {incident.date} - {incident.description}')
+        print(f'{incident.date} - {incident.description}')
 ```
 
 ## TODO

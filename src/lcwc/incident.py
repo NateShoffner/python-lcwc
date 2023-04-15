@@ -11,7 +11,7 @@ class Incident:
         
         :param datetime date: The date and time of the incident in local time (EST)
 
-        :param str description: The description of thew incident
+        :param str description: The description of the incident
 
         :param str township: The location of the incident location
 
