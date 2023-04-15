@@ -45,7 +45,7 @@ class IncidentFeedClient(Client):
 
     MEDICAL_DESCRIPTION_KEYWORDS = ['MEDICAL']
     FIRE_DESCRIPTION_KEYWORDS = ['FIRE']
-    TRAFFIC_DESCRIPTION_KEYWORDS = ['TRAFFIC']
+    TRAFFIC_DESCRIPTION_KEYWORDS = ['TRAFFIC', 'VEHICLE']
 
     def __init__(self):
         super().__init__()
@@ -138,15 +138,16 @@ class IncidentFeedClient(Client):
             elif any(k in unit for k in self.MEDICAL_UNIT_NAMES):
                 return IncidentCategory.MEDICAL
 
+        # extra note regarding traffic incidents: they tend to not have units assigned
+        # unless there is an accompanying fire or medical incident for the same call
+        # this needs to be checked before the description check for other categories
+        if len(units) == 0 and any(k in description for k in self.TRAFFIC_DESCRIPTION_KEYWORDS):
+            return IncidentCategory.TRAFFIC
+
         # perform a basic description check
         if any(k in description for k in self.MEDICAL_DESCRIPTION_KEYWORDS):
             return IncidentCategory.MEDICAL
         if any(k in description for k in self.FIRE_DESCRIPTION_KEYWORDS):
             return IncidentCategory.FIRE
-
-        # extra note regarding traffic incidents: they tend to not have units assigned
-        # unless there is an accompanying fire or medical incident for the same call
-        if any(k in description for k in self.TRAFFIC_DESCRIPTION_KEYWORDS):
-            return IncidentCategory.TRAFFIC
 
         return IncidentCategory.UNKNOWN
