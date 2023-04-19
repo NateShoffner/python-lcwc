@@ -5,6 +5,7 @@ import feedparser
 from lcwc.category import IncidentCategory
 from lcwc.client import Client
 from lcwc.incident import Incident
+from lcwc.utils import FIRE_UNIT_NAMES, LOCATION_NAMES, MEDICAL_UNIT_NAMES, determine_category
 
 '''
 Example entry:
@@ -38,15 +39,6 @@ class IncidentFeedClient(Client):
     URL = 'https://webcad.lcwc911.us/Pages/Public/LiveIncidentsFeed.aspx'
     """ The URL of the live incident feed """
 
-    FIRE_UNIT_NAMES = ['BRUSH', 'CHIEF', 'DEPUTY', 'DUTY OFFICER', 'ENGINE', 'FIRE POLICE', 'RESCUE', 'SQUAD', 'TAC', 'TRUCK', 'UTILITY', 'UTV']
-    MEDICAL_UNIT_NAMES = ['AMB', 'EMS', 'INT', 'MEDIC', 'QRS']
-
-    LOCATION_NAMES = ['ALY', 'AVE', 'CIR', 'CT', 'DR', 'LN', 'PL', 'PIKE', 'RAMP', 'RD', 'ROUTE', 'ST']
-
-    MEDICAL_DESCRIPTION_KEYWORDS = ['MEDICAL']
-    FIRE_DESCRIPTION_KEYWORDS = ['FIRE']
-    TRAFFIC_DESCRIPTION_KEYWORDS = ['TRAFFIC', 'VEHICLE']
-
     def __init__(self):
         super().__init__()
 
@@ -74,10 +66,10 @@ class IncidentFeedClient(Client):
         d = feedparser.parse(contents)
 
         def has_intersection(details_segment: str) -> bool:
-            return any(k in details_segment for k in self.LOCATION_NAMES)
+            return any(k in details_segment for k in LOCATION_NAMES)
             
         def has_unit_names(details_segment: str) -> bool:
-            return any(k in details_segment for k in self.FIRE_UNIT_NAMES + self.MEDICAL_UNIT_NAMES)S
+            return any(k in details_segment for k in FIRE_UNIT_NAMES + MEDICAL_UNIT_NAMES)
 
         for entry in d.entries:
 
@@ -99,7 +91,7 @@ class IncidentFeedClient(Client):
             units = []
 
             # skip if only township is present
-            if len(details_split >= 2):
+            if len(details_split) >= 2:
                 if has_unit_names(details_split[1]):
                     units = self.__extract_units(details_split[1])
                 else:
@@ -108,7 +100,7 @@ class IncidentFeedClient(Client):
                     if len(details_split) > 2 and has_unit_names(details_split[2]):
                         units = self.__extract_units(details_split[2])
 
-            category = self.__determine_category(description, units)
+            category = determine_category(description, units)
 
             incidents.append(FeedIncident(category, date, description, township, intersection, units, guid))
 
@@ -137,33 +129,3 @@ class IncidentFeedClient(Client):
         if units_data == '':
             return []
         return [u.strip() for u in units_data.strip().split('<br />')]
-
-    def __determine_category(self, description: str, units: list[str]) -> IncidentCategory:
-        """ Determines the category of an incident based on the description and units assigned 
-        
-        :param description: The description of the incident
-        :param units: The units assigned to the incident
-        :return: The category of the incident
-        :rtype: IncidentCategory
-        """
-
-        # check for unit matches 
-        for unit in units:
-            if any(k in unit for k in self.FIRE_UNIT_NAMES):
-                return IncidentCategory.FIRE
-            elif any(k in unit for k in self.MEDICAL_UNIT_NAMES):
-                return IncidentCategory.MEDICAL
-
-        # extra note regarding traffic incidents: they tend to not have units assigned
-        # unless there is an accompanying fire or medical incident for the same call
-        # this needs to be checked before the description check for other categories
-        if len(units) == 0 and any(k in description for k in self.TRAFFIC_DESCRIPTION_KEYWORDS):
-            return IncidentCategory.TRAFFIC
-
-        # perform a basic description check
-        if any(k in description for k in self.MEDICAL_DESCRIPTION_KEYWORDS):
-            return IncidentCategory.MEDICAL
-        if any(k in description for k in self.FIRE_DESCRIPTION_KEYWORDS):
-            return IncidentCategory.FIRE
-
-        return IncidentCategory.UNKNOWN
