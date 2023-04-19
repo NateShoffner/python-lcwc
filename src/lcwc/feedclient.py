@@ -73,9 +73,23 @@ class IncidentFeedClient(Client):
 
         d = feedparser.parse(contents)
 
+        def has_intersection(details_segment: str) -> bool:
+            return any(k in details_segment for k in self.LOCATION_NAMES)
+            
+        def has_unit_names(details_segment: str) -> bool:
+            return any(k in details_segment for k in self.FIRE_UNIT_NAMES + self.MEDICAL_UNIT_NAMES)S
+
         for entry in d.entries:
 
+            guid = entry.guid
+            date = datetime.datetime.fromtimestamp( email.utils.mktime_tz(email.utils.parsedate_tz(entry.published)))
+            description = entry.title
+
+            # Possible formats:
             # [township];[intersection];[units assigned]
+            # [township];[intersection]
+            # [township];[units assigned]
+            # [township]
             details_split = entry['description'].strip().split(';', maxsplit=3)
 
             # first item is always the township
@@ -84,29 +98,19 @@ class IncidentFeedClient(Client):
             intersection = None
             units = []
 
-            def split_units(units_data: str) -> list[str]:
-                units_data = units_data.strip()
-                if units_data == '':
-                    return []
-                return [u.strip() for u in units_data.strip().split('<br />')]
+            # skip if only township is present
+            if len(details_split >= 2):
+                if has_unit_names(details_split[1]):
+                    units = self.__extract_units(details_split[1])
+                else:
+                    if has_intersection(details_split[1]):
+                        intersection = details_split[1].strip()
+                    if len(details_split) > 2 and has_unit_names(details_split[2]):
+                        units = self.__extract_units(details_split[2])
 
-            # intersection is not always present, so we need to check for it before splitting the units
-            has_unit_names = any(k in details_split[1] for k in self.FIRE_UNIT_NAMES + self.MEDICAL_UNIT_NAMES)
-            has_intersection = any(k in details_split[1] for k in self.LOCATION_NAMES)
+            category = self.__determine_category(description, units)
 
-            if has_unit_names and not has_intersection:
-                units = split_units(details_split[1])
-            else:
-                intersection = details_split[1].strip()
-                units = split_units(details_split[2])
-
-            date = datetime.datetime.fromtimestamp( email.utils.mktime_tz(email.utils.parsedate_tz(entry.published)))
-
-            guid = entry.guid
-
-            description = entry.title
-            cat = self.__determine_category(description, units)
-            incidents.append(FeedIncident(cat, date, description, township, intersection, units, guid))
+            incidents.append(FeedIncident(category, date, description, township, intersection, units, guid))
 
         return incidents
 
@@ -121,6 +125,18 @@ class IncidentFeedClient(Client):
         result = await self.fetch(session, timeout)
         active_incidents = self.parse(result)
         return active_incidents
+    
+    def __extract_units(self, units_data: str) -> list[str]:
+        """ Extracts the units from the data string
+
+        :param units_data: The data string containing the units
+        :return: A list of units
+        :rtype: list[str]
+        """
+        units_data = units_data.strip()
+        if units_data == '':
+            return []
+        return [u.strip() for u in units_data.strip().split('<br />')]
 
     def __determine_category(self, description: str, units: list[str]) -> IncidentCategory:
         """ Determines the category of an incident based on the description and units assigned 
