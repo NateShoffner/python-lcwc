@@ -1,13 +1,59 @@
 from lcwc.category import IncidentCategory
 
-FIRE_UNIT_NAMES = ['BATTALION', 'BOAT', 'BRUSH', 'CHIEF', 'DEPUTY', 'DUTY OFFICER', 'ENGINE', 'FIRE POLICE', 'RESCUE', 'SQUAD', 'TAC', 'TRUCK', 'UTILITY', 'UTV']
-MEDICAL_UNIT_NAMES = ['AMB', 'EMS', 'INT', 'MEDIC', 'QRS']
+FIRE_UNIT_NAMES = [
+    'ATV', 
+    'BATTALION', 
+    'BOAT', 
+    'BRUSH', 
+    'CHIEF', 
+    'DEPUTY', 
+    'DUTY OFFICER', 
+    'ENGINE', 
+    'FIRE POLICE', 
+    'FOAM', 
+    'RESCUE', 
+    'SQUAD', 
+    'TAC', 
+    'TRUCK', 
+    'UTILITY', 
+    'UTV'
+]
 
-LOCATION_NAMES = ['ALY', 'AVE', 'CIR', 'CT', 'DR', 'LN', 'PL', 'PIKE', 'RAMP', 'RD', 'ROUTE', 'ST']
+MEDICAL_UNIT_NAMES = [
+    'AMB', 
+    'EMS', 
+    'INT', 
+    'MEDIC', 
+    'QRS'
+]
 
-MEDICAL_DESCRIPTION_KEYWORDS = ['MEDICAL']
-FIRE_DESCRIPTION_KEYWORDS = ['FIRE']
-TRAFFIC_DESCRIPTION_KEYWORDS = ['TRAFFIC', 'VEHICLE']
+LOCATION_NAMES = [
+    'ALY', 
+    'AVE', 
+    'CIR', 
+    'CT', 
+    'DR', 
+    'LN', 
+    'PL', 
+    'PIKE', 
+    'RAMP', 
+    'RD', 
+    'ROUTE', 
+    'ST'
+]
+
+MEDICAL_DESCRIPTION_KEYWORDS = [
+    'MEDICAL'
+]
+
+FIRE_DESCRIPTION_KEYWORDS = [
+    'FIRE'
+]
+
+TRAFFIC_DESCRIPTION_KEYWORDS = [
+    'TRAFFIC', 
+    'VEHICLE'
+]
 
 def determine_category(description: str, units: list[str]) -> IncidentCategory:
     """ Determines the category of an incident based on the description and units assigned 
