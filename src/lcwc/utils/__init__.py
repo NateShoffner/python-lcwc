@@ -1,5 +1,8 @@
+import datetime
 from lcwc.category import IncidentCategory
+from lcwc.incident import Incident
 
+""" A list of keywords that indicate a location name"""
 FIRE_UNIT_NAMES = [
     'ATV', 
     'BATTALION', 
@@ -19,6 +22,7 @@ FIRE_UNIT_NAMES = [
     'UTV'
 ]
 
+""" A list of keywords that indicate a location name """
 MEDICAL_UNIT_NAMES = [
     'AMB', 
     'EMS', 
@@ -27,6 +31,7 @@ MEDICAL_UNIT_NAMES = [
     'QRS'
 ]
 
+""" A list of keywords that indicate a location name """
 LOCATION_NAMES = [
     'ALY', 
     'AVE', 
@@ -42,14 +47,17 @@ LOCATION_NAMES = [
     'ST'
 ]
 
+""" A list of keywords that indicate a medical incident """
 MEDICAL_DESCRIPTION_KEYWORDS = [
     'MEDICAL'
 ]
 
+""" A list of keywords that indicate a fire incident """
 FIRE_DESCRIPTION_KEYWORDS = [
     'FIRE'
 ]
 
+""" A list of keywords that indicate a traffic incident """
 TRAFFIC_DESCRIPTION_KEYWORDS = [
     'TRAFFIC', 
     'VEHICLE'
@@ -84,3 +92,17 @@ def determine_category(description: str, units: list[str]) -> IncidentCategory:
         return IncidentCategory.FIRE
 
     return IncidentCategory.UNKNOWN
+
+def is_related_incident(a: Incident, b: Incident, delta: datetime.timedelta) -> bool:
+    """ Determines if two incidents are related based on the intersection and time delta
+
+    :param a: The first incident
+    :param b: The second incident
+    :param delta: The time delta
+    :return: True if the incidents are related, False otherwise
+    :rtype: bool
+    """
+
+    if a.intersection is None or b.intersection is None:
+        return False
+    return  a.intersection == b.intersection and abs(a.date - b.date) <= delta

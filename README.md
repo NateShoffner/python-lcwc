@@ -23,8 +23,3 @@ async with aiohttp.ClientSession() as session:
     for incident in incidents:
         print(f'{incident.date} - {incident.description}')
 ```
-
-## TODO
-
-- [ ] Identify potential duplicate incidents reported under multiple categories (e.g. "Fire" and "Traffic" for vehicle fire)
-- [ ] Backing store and event emitter
