@@ -2,7 +2,7 @@ import datetime
 from lcwc.incident import Incident
 from lcwc.category import IncidentCategory
 from collections import namedtuple
-Coordinates = namedtuple("Coordinates", ['Longitude', 'Latitude'])
+Coordinates = namedtuple("Coordinates", ['longitude', 'latitude'])
     
 class ArcGISIncident(Incident):
     """ Represents an incident from the live ArcGIS REST API """

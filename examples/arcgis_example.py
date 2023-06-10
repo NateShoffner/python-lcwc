@@ -1,13 +1,13 @@
 import aiohttp
 import asyncio
-from lcwc import feedclient
+from lcwc.arcgis import Client
 
 async def main():
 
-    client = feedclient.IncidentFeedClient()
+    client = Client()
     
     async with aiohttp.ClientSession() as session:
-        incidents = await client.fetch_and_parse(session)
+        incidents = await client.get_incidents(session)
 
         for incident in incidents:
             print("-----")
@@ -18,9 +18,10 @@ async def main():
             print(f'Township: {incident.township}')
             units = 'None' if len(incident.units) == 0 else ', '.join(incident.units)
             print(f'Units: {units}')
-
-            if isinstance(incident, feedclient.FeedIncident):
-                print(f'GUID: {incident.guid}')
+            print(f'Number: {incident.number}')
+            print(f'Priority: {incident.priority}')
+            print(f'Agency: {incident.agency}')
+            print(f'Coordinates: {incident.coordinates.latitude}, {incident.coordinates.longitude}')
 
         print("-----")     
 
