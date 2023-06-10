@@ -1,62 +1,13 @@
-import datetime
 import aiohttp
+import datetime
 import re
-from collections import namedtuple
+from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
-from lcwc.client import Client
-from lcwc.incident import Incident
 
-Coordinates = namedtuple("Coordinates", ['Longitude', 'Latitude'])
+class Client:
+    """ Client for the ArcGIS REST API """
 
-class ArcGISIncident(Incident):
-    
-    def __init__(self, category: IncidentCategory, date: datetime, description: str, township: str, intersection: str, number: int, priority: int, agency: str, public: bool, coordinates: Coordinates, units: list[str] = []) -> None:
-        super().__init__(category, date, description, township, intersection, units)
-        self._incident_number = number
-        self._priority = priority
-        self._agency = agency
-        self._public = public
-        self._coordinates = coordinates
-
-    @property
-    def number(self) -> int:
-        """ Returns the number of the incident """
-        return self._incident_number
-
-    @property
-    def priority(self) -> int:
-        """ Returns the priority of the incident """
-        return self._priority
-    
-    @property
-    def agency(self) -> str:
-        """ Returns the agency of the incident """
-        return self._agency
-    
-    @property
-    def coordinates(self) -> Coordinates:
-        """ Returns the coordinates of the incident """
-        return self._coordinates
-
-    @property
-    def public(self) -> bool:
-        """ Returns whether the incident is public """
-        return self._public
-    
-class ArcGISClient(Client):
-
-    async def fetch(self, session: aiohttp.ClientSession, timeout: int) -> bytes:   
-        """ Gets the contents of the page and returns the contents as bytes """
-        async with session.get(self.URL, timeout=timeout) as resp:
-            if resp.status == 200:
-                c = await resp.read()
-                return c
-
-    def parse(self, contents: bytes) -> list[ArcGISIncident]:
-        """ Parses the contents of the page and returns a list of incidents """
-        pass
-
-    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[ArcGISIncident]:
+    async def get_incidents(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[ArcGISIncident]:
         """ Fetches the page and parses the contents and returns a list of incidents """
 
         layer_mapping = {
@@ -143,12 +94,12 @@ class ArcGISClient(Client):
                     continue
 
                 for feature in data['features']:
-                    incident = self._parse_incident(cat, feature)
+                    incident = self.__parse_incident(cat, feature)
                     incidents.append(incident)
 
         return incidents
-    
-    def _parse_incident(self, category: IncidentCategory, incident: dict) -> ArcGISIncident:
+
+    def __parse_incident(self, category: IncidentCategory, incident: dict) -> ArcGISIncident:
 
         attributes = incident['attributes']
         geometry = incident['geometry']

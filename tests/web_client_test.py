@@ -1,6 +1,6 @@
 import aiohttp
 import unittest
-from lcwc import webclient
+from lcwc.web import Client
 from lcwc.incident import Incident
 from unittest import IsolatedAsyncioTestCase
 
@@ -8,19 +8,8 @@ class WebClientTest(IsolatedAsyncioTestCase):
 
     async def test_fetch(self):
         async with aiohttp.ClientSession() as session:
-            client = webclient.IncidentWebClient()
-            result = await client.fetch(session)
-
-            self.assertIsNotNone(result)
-            self.assertGreater(len(result), 0)
-            self.assertIsInstance(result, bytes, "")
-    
-    async def test_parse(self):
-        async with aiohttp.ClientSession() as session:
-            client = webclient.IncidentWebClient()
-            result = await client.fetch(session)
-
-            incidents = client.parse(result)
+            client = Client()
+            incidents = await client.get_incidents(session)
 
             self.assertIsNotNone(incidents)     
             self.assertIsInstance(incidents, list, "")

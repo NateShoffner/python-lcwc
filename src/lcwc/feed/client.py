@@ -2,9 +2,7 @@ import aiohttp
 import datetime
 import email.utils 
 import feedparser
-from lcwc.category import IncidentCategory
-from lcwc.client import Client
-from lcwc.incident import Incident
+from lcwc.feed.incident import FeedIncident
 from lcwc.utils import FIRE_UNIT_NAMES, LOCATION_NAMES, MEDICAL_UNIT_NAMES, determine_category
 
 '''
@@ -19,42 +17,31 @@ Example entry:
 </item>
 '''
 
-# custom class to handle the guid attribute
-# a bit usless on its own but might be useful for statically identifying incidents
-# since apparently every detail is subject to change except maybe the timestamp
-class FeedIncident(Incident):
-    """ Represents an incident from the live incident feed """
-
-    def __init__(self, category: IncidentCategory, date: datetime, description: str, township: str, intersection: str, units: list[str] = [], guid: str = None) -> None:
-        super().__init__(category, date, description, township, intersection, units)
-        self._guid = guid
-
-    @property
-    def guid(self) -> str:
-        """ Returns the guid of the incident """
-        return self._guid
-
-class IncidentFeedClient(Client):
+class Client:
+    """ Client for the incident RSS feed """
 
     URL = 'https://webcad.lcwc911.us/Pages/Public/LiveIncidentsFeed.aspx'
     """ The URL of the live incident feed """
 
-    def __init__(self):
-        super().__init__()
-
-    async def fetch(self, session: aiohttp.ClientSession, timeout: int = 10) -> bytes:
-        """ Gets the live incident feed and returns the xml as bytes
+    async def get_incidents(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[FeedIncident]:
+        """ Gets the live incident feed and returns a list of incidents
 
         :param session: The aiohttp session to use
-        :param timeout: The timeout in seconds
-        :return: The xml of the live incident feed
-        :rtype: bytes
+        :param timeout: The timeout for the request
+        :return: A list of incidents
+        :rtype: list[Incident]
         """
-        async with session:
-            html = await super().fetch(session, timeout)
-            return html
+        response = None
+        async with session.get(self.URL, timeout=timeout) as resp:
+            if resp.status == 200:
+                response = await resp.read()
+            else:
+                raise Exception(f'Unable to fetch live incident feed: {resp.status}')
 
-    def parse(self, contents: bytes) -> list[FeedIncident]:
+        active_incidents = self.__parse(response)
+        return active_incidents
+
+    def __parse(self, contents: bytes) -> list[FeedIncident]:
         """ Parses the live incident feed and returns a list of incidents
 
         :param contents: The xml of the live incident feed
@@ -106,18 +93,6 @@ class IncidentFeedClient(Client):
 
         return incidents
 
-    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[FeedIncident]:
-        """ Gets the live incident feed and returns a list of incidents
-
-        :param session: The aiohttp session to use
-        :param timeout: The timeout for the request
-        :return: A list of incidents
-        :rtype: list[Incident]
-        """
-        result = await self.fetch(session, timeout)
-        active_incidents = self.parse(result)
-        return active_incidents
-    
     def __extract_units(self, units_data: str) -> list[str]:
         """ Extracts the units from the data string
 

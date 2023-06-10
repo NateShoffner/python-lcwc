@@ -3,36 +3,35 @@ import aiohttp
 from bs4 import BeautifulSoup
 from lcwc.category import IncidentCategory
 from lcwc.incident import Incident
-from lcwc.client import Client
-
-TIMEZONE = 'US/Eastern'
-""" The timezone used on the LCWC website """
 
 DATE_FORMAT = '%a, %b %d, %Y %H:%M'
 """ The date format used on the LCWC website """
 
-class IncidentWebClient(Client):
-    """ Parses the live incident page from the LCWC website """
+class Client():
+    """ Client for scraping the live incident page """
 
     URL = 'https://www.lcwc911.us/live-incident-list'
     """ The URL of the live incident page """
 
-    def __init__(self):
-        super().__init__()
-
-    async def fetch(self, session: aiohttp.ClientSession, timeout: int = 10) -> bytes:
-        """ Gets the live incident page and returns the html as bytes
+    async def get_incidents(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[Incident]:
+        """ Fetches the live incident page and returns a list of incidents
 
         :param session: The aiohttp session to use
         :param timeout: The timeout in seconds
-        :return: The html of the live incident page
-        :rtype: bytes
+        :return: A list of incidents
+        :rtype: list[Incident]
         """
-        async with session:
-            html = await super().fetch(session, timeout)
-            return html
-
-    def parse(self, page_html: bytes) -> list[Incident]:
+        html = None
+        async with session.get(self.URL, timeout=timeout) as resp:
+            if resp.status == 200:
+                html = await resp.read()
+            else:
+                raise Exception(f'Unable to fetch live incident page: {resp.status}')
+        
+        active_incidents = self.__parse(html)
+        return active_incidents
+    
+    def __parse(self, page_html: bytes) -> list[Incident]:
         """ Parses the live incident page and returns a list of incidents
 
         :param page_html: The html of the live incident page
@@ -83,15 +82,3 @@ class IncidentWebClient(Client):
                 incidents.append(incident)
 
         return incidents
-
-    async def fetch_and_parse(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[Incident]:
-        """ Gets the live incident page and returns a list of incidents
-
-        :param session: The aiohttp session to use
-        :param timeout: The timeout in seconds
-        :return: A list of incidents
-        :rtype: list[Incident]
-        """
-        result = await self.fetch(session)
-        active_incidents = self.parse(result)
-        return active_incidents
