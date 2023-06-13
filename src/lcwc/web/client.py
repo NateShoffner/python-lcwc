@@ -1,5 +1,6 @@
 import datetime
 import aiohttp
+import pytz
 from bs4 import BeautifulSoup
 from lcwc.category import IncidentCategory
 from lcwc.incident import Incident
@@ -61,8 +62,13 @@ class Client():
 
                 if not date_row or not incident_row or not location_row or not units_row:
                     continue
-
-                date = datetime.datetime.strptime(date_row.text.strip(), DATE_FORMAT)
+                
+                # convert date to UTC
+                local_tz = pytz.timezone("America/New_York")
+                raw_date = datetime.datetime.strptime(date_row.text.strip(), DATE_FORMAT)
+                local_dt = local_tz.localize(raw_date, is_dst=None)
+                date = local_dt.astimezone(pytz.utc)
+  
                 description = incident_row.text.strip().strip()
 
                 # split location by street(s) and township (if applicable)

@@ -34,7 +34,7 @@ class Incident:
 
     @property
     def date(self) -> datetime:
-        """ Returns the date and time of the incident in local time (EST) """
+        """ Returns the date and time of the incident """
         return self._date
 
     @property

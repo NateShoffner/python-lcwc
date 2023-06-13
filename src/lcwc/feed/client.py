@@ -1,7 +1,7 @@
 import aiohttp
 import datetime
-import email.utils 
 import feedparser
+import pytz
 from lcwc.feed.incident import FeedIncident
 from lcwc.utils import FIRE_UNIT_NAMES, LOCATION_NAMES, MEDICAL_UNIT_NAMES, determine_category
 
@@ -61,7 +61,8 @@ class Client:
         for entry in d.entries:
 
             guid = entry.guid
-            date = datetime.datetime.fromtimestamp( email.utils.mktime_tz(email.utils.parsedate_tz(entry.published)))
+            gmt_date = datetime.datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z')
+            date = gmt_date.replace(tzinfo=datetime.timezone.utc).astimezone(pytz.utc)
             description = entry.title
 
             # Possible formats:
