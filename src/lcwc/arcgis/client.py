@@ -139,7 +139,10 @@ class Client:
         intersection = re.sub(' +', ' ', attributes['PublicLocation']) # collapse multiple spaces
 
         # unit names are condensed, lacking spaces and delimiters (ex: MED8611)
-        units = attributes['CurrentUnits'].split(',')
+        if 'CurrentUnits' in attributes and attributes['CurrentUnits'] is not None:
+            units = attributes['CurrentUnits'].split(',')
+        else:
+            units = []
         
         number = int(attributes['IncidentNumber'])
 
