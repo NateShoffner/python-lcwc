@@ -1,5 +1,6 @@
 import aiohttp
 import datetime
+import json
 import re
 from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
@@ -66,12 +67,40 @@ class Client:
 
             layer_id = layer_mapping[cat]
 
+            """ Actual spatial extent of Lancaster County based LanCo GIS data
+            lanco_spatial = {
+                'xmin': -8548898.732776089,
+                'ymin': 4845979.963808246,
+                'xmax': -8432714.449782776,
+                'ymax': 4909881.3194545675,
+                'spatialReference': {
+                    'wkid': 102100
+                }
+            }
+            """
+
+            # seems we need to expand the spatial extent to get all incidents
+            lanco_spatial = {
+                'xmin': -8657540.868810708,
+                'ymin': 4794222.228992932,
+                'xmax': -8290643.133041878,
+                'ymax': 5048910.407239126,
+                'spatialReference': {
+                    'wkid': 102100
+                }
+            }
+
             params = {
                 'f': 'json',
                 'where': '1=1',
                 'returnGeometry': 'true',
+                'spatialRel': 'esriSpatialRelIntersects',
+                'geometry': json.dumps(lanco_spatial),
+                'geometryType': 'esriGeometryEnvelope',
+                'inSR': 102100,
                 'outFields': ','.join(fields[cat]),
-                'outSR': 4326 # return coordinates in WGS84
+                'outSR': 4326, # return coordinates in WGS84
+                'rand': int(datetime.datetime.now().timestamp() * 1000) # add a timestamp to prevent caching
             }
 
             url = f'https://utility.arcgis.com/usrsvcs/servers/a1f6aa7faab44b1582029509c46dce86/rest/services/Maps/Public_LiveFeeds/MapServer/{layer_id}/query'
@@ -92,7 +121,7 @@ class Client:
 
                 if 'features' not in data:
                     continue
-
+                    
                 for feature in data['features']:
                     incident = self.__parse_incident(cat, feature)
                     incidents.append(incident)
