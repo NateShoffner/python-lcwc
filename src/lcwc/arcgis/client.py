@@ -4,9 +4,11 @@ import json
 import re
 from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
+from lcwc.utils.restadapter import RestAdapter, RestException
 
 class Client:
     """ Client for the ArcGIS REST API """
+
 
     async def get_incidents(self, session: aiohttp.ClientSession, timeout: int = 10) -> list[ArcGISIncident]:
         """ Fetches the page and parses the contents and returns a list of incidents """
@@ -100,31 +102,33 @@ class Client:
                 'inSR': 102100,
                 'outFields': ','.join(fields[cat]),
                 'outSR': 4326, # return coordinates in WGS84
-                'rand': int(datetime.datetime.now().timestamp() * 1000) # add a timestamp to prevent caching
+                'currentTimestamp': int(datetime.datetime.now().timestamp() * 1000) # add a timestamp to prevent caching
             }
 
-            url = f'https://utility.arcgis.com/usrsvcs/servers/a1f6aa7faab44b1582029509c46dce86/rest/services/Maps/Public_LiveFeeds/MapServer/{layer_id}/query'
+            adapter = RestAdapter(session, "utility.arcgis.com", "usrsvcs/servers/a1f6aa7faab44b1582029509c46dce86/rest/services/Maps/Public_LiveFeeds/MapServer/")
 
-            async with session.get(url, params=params, timeout=timeout) as resp:
+            try:
+                resp = await adapter.get(endpoint=f"{layer_id}/query", ep_params=params)
+            except RestException as e:
+                print(f'{cat} Error: {e}')
+                continue
 
-                if resp.status != 200:
-                    print(f'Error: {resp.status} for {cat}')
-                    continue
+            if resp.status_code != 200:
+                print(f'Error: {resp.status_code} for {cat}')
+                continue
 
-                data = await resp.json()
+            error = resp.data.get('error', None)
+            if error:
+                print(resp.url)
+                print(f'Error: {error}')
+                continue
 
-                error = data.get('error', None)
-                if error:
-                    print(resp.url)
-                    print(f'Error: {error}')
-                    continue
-
-                if 'features' not in data:
-                    continue
-                    
-                for feature in data['features']:
-                    incident = self.__parse_incident(cat, feature)
-                    incidents.append(incident)
+            if 'features' not in resp.data:
+                continue
+                
+            for feature in resp.data['features']:
+                incident = self.__parse_incident(cat, feature)
+                incidents.append(incident)
 
         return incidents
 
