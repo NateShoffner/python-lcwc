@@ -3,6 +3,7 @@ from typing import Dict
 from json import JSONDecodeError
 from typing import List, Dict
 
+
 class Result:
     def __init__(
         self,
@@ -34,7 +35,7 @@ class RestAdapter:
         hostname: str = "",
         base: str = "",
         user_agent: str = "",
-        ssl_verify: bool = True
+        ssl_verify: bool = True,
     ):
         """
         Constructor for RestAdapter

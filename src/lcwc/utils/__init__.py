@@ -4,75 +4,63 @@ from lcwc.incident import Incident
 
 """ A list of keywords that indicate a location name"""
 FIRE_UNIT_NAMES = [
-    'ATV', 
-    'BATTALION', 
-    'BOAT', 
-    'BRUSH', 
-    'CHIEF', 
-    'DEPUTY', 
-    'DUTY OFFICER', 
-    'ENGINE', 
-    'FIRE POLICE', 
-    'FOAM', 
-    'RESCUE', 
-    'SQUAD', 
-    'TAC', 
-    'TRUCK', 
-    'UTILITY', 
-    'UTV'
+    "ATV",
+    "BATTALION",
+    "BOAT",
+    "BRUSH",
+    "CHIEF",
+    "DEPUTY",
+    "DUTY OFFICER",
+    "ENGINE",
+    "FIRE POLICE",
+    "FOAM",
+    "RESCUE",
+    "SQUAD",
+    "TAC",
+    "TRUCK",
+    "UTILITY",
+    "UTV",
 ]
 
 """ A list of keywords that indicate a location name """
-MEDICAL_UNIT_NAMES = [
-    'AMB', 
-    'EMS', 
-    'INT', 
-    'MEDIC', 
-    'QRS'
-]
+MEDICAL_UNIT_NAMES = ["AMB", "EMS", "INT", "MEDIC", "QRS"]
 
 """ A list of keywords that indicate a location name """
 LOCATION_NAMES = [
-    'ALY', 
-    'AVE', 
-    'CIR', 
-    'CT', 
-    'DR', 
-    'LN', 
-    'PL', 
-    'PIKE', 
-    'RAMP', 
-    'RD', 
-    'ROUTE', 
-    'ST'
+    "ALY",
+    "AVE",
+    "CIR",
+    "CT",
+    "DR",
+    "LN",
+    "PL",
+    "PIKE",
+    "RAMP",
+    "RD",
+    "ROUTE",
+    "ST",
 ]
 
 """ A list of keywords that indicate a medical incident """
-MEDICAL_DESCRIPTION_KEYWORDS = [
-    'MEDICAL'
-]
+MEDICAL_DESCRIPTION_KEYWORDS = ["MEDICAL"]
 
 """ A list of keywords that indicate a fire incident """
-FIRE_DESCRIPTION_KEYWORDS = [
-    'FIRE'
-]
+FIRE_DESCRIPTION_KEYWORDS = ["FIRE"]
 
 """ A list of keywords that indicate a traffic incident """
-TRAFFIC_DESCRIPTION_KEYWORDS = [
-    'TRAFFIC', 
-    'VEHICLE'
-]
+TRAFFIC_DESCRIPTION_KEYWORDS = ["TRAFFIC", "VEHICLE"]
+
 
 def determine_category(description: str, units: list[str]) -> IncidentCategory:
-    """ Determines the category of an incident based on the description and units assigned 
-    
+    """Determines the category of an incident based on the description and units assigned
+
     :param description: The description of the incident
     :param units: The units assigned to the incident
     :return: The category of the incident
     :rtype: IncidentCategory
     """
 
-    # check for unit matches 
+    # check for unit matches
     for unit in units:
         if any(k in unit for k in FIRE_UNIT_NAMES):
             return IncidentCategory.FIRE
@@ -93,8 +81,9 @@ def determine_category(description: str, units: list[str]) -> IncidentCategory:
 
     return IncidentCategory.UNKNOWN
 
+
 def is_related_incident(a: Incident, b: Incident, delta: datetime.timedelta) -> bool:
-    """ Determines if two incidents are related based on the intersection and time delta
+    """Determines if two incidents are related based on the intersection and time delta
 
     :param a: The first incident
     :param b: The second incident
@@ -105,4 +94,4 @@ def is_related_incident(a: Incident, b: Incident, delta: datetime.timedelta) -> 
 
     if a.intersection is None or b.intersection is None:
         return False
-    return  a.intersection == b.intersection and abs(a.date - b.date) <= delta
+    return a.intersection == b.intersection and abs(a.date - b.date) <= delta
