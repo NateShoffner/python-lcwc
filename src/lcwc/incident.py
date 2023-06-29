@@ -10,7 +10,7 @@ class Incident:
         category: IncidentCategory,
         date: datetime,
         description: str,
-        township: str,
+        municipality: str,
         intersection: str,
         units: list[str] = [],
     ) -> None:
@@ -22,7 +22,7 @@ class Incident:
 
         :param str description: The description of the incident
 
-        :param str township: The location of the incident location
+        :param str municipality: The location of the incident location
 
         :param str intersection: The intersection of the incident location
 
@@ -32,7 +32,7 @@ class Incident:
         self._category = category
         self._date = date
         self._description = description
-        self._township = township
+        self._municipality = municipality
         self._intersection = intersection
         self._units = units
 
@@ -52,9 +52,9 @@ class Incident:
         return self._description
 
     @property
-    def township(self) -> str:
-        """Returns the township of the incident location"""
-        return self._township
+    def municipality(self) -> str:
+        """Returns the municipality of the incident location"""
+        return self._municipality
 
     @property
     def intersection(self) -> str:
@@ -65,9 +65,9 @@ class Incident:
     def location(self) -> str:
         """Returns the full location of the incident"""
         if self._intersection is None:
-            return self._township
+            return self._municipality
         else:
-            return "\n".join([self._intersection, self._township])
+            return "\n".join([self._intersection, self._municipality])
 
     @property
     def units(self) -> list[str]:

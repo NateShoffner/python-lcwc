@@ -14,12 +14,12 @@ class FeedIncident(Incident):
         category: IncidentCategory,
         date: datetime,
         description: str,
-        township: str,
+        municipality: str,
         intersection: str,
         units: list[str] = [],
         guid: str = None,
     ) -> None:
-        super().__init__(category, date, description, township, intersection, units)
+        super().__init__(category, date, description, municipality, intersection, units)
         self._guid = guid
 
     @property

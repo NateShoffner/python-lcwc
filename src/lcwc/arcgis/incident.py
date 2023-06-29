@@ -14,7 +14,7 @@ class ArcGISIncident(Incident):
         category: IncidentCategory,
         date: datetime,
         description: str,
-        township: str,
+        municipality: str,
         intersection: str,
         number: int,
         priority: int,
@@ -23,7 +23,7 @@ class ArcGISIncident(Incident):
         coordinates: Coordinates,
         units: list[str] = [],
     ) -> None:
-        super().__init__(category, date, description, township, intersection, units)
+        super().__init__(category, date, description, municipality, intersection, units)
         self._incident_number = number
         self._priority = priority
         self._agency = agency

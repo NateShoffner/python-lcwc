@@ -15,7 +15,7 @@ async def main():
             print(f'Date: {incident.date}')
             print(f'Description: {incident.description}')
             print(f'Intersection: {incident.intersection}')
-            print(f'Township: {incident.township}')
+            print(f'Municipality: {incident.municipality}')
             units = 'None' if len(incident.units) == 0 else ', '.join(incident.units)
             print(f'Units: {units}')
             print(f'Number: {incident.number}')

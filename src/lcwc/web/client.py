@@ -80,15 +80,15 @@ class Client:
 
                 description = incident_row.text.strip().strip()
 
-                # split location by street(s) and township (if applicable)
+                # split location by street(s) and municipality (if applicable)
                 location = [l.strip() for l in location_row.text.strip().split("\n")]
 
                 if len(location) == 1:
                     intersection = None
-                    township = location[0]
+                    municipality = location[0]
                 else:
                     intersection = location[0]
-                    township = location[1]
+                    municipality = location[1]
 
                 # we have to decode manually because of internal <br/> tags
                 units = [
@@ -97,7 +97,7 @@ class Client:
                 ]
 
                 incident = Incident(
-                    category, date, description, township, intersection, units
+                    category, date, description, municipality, intersection, units
                 )
                 incidents.append(incident)
 

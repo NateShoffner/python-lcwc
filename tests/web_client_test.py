@@ -21,7 +21,7 @@ class WebClientTest(IsolatedAsyncioTestCase):
             self.assertIsNotNone(first_incident.category)
             self.assertIsNotNone(first_incident.description)
             self.assertIsNotNone(first_incident.date)
-            self.assertIsNotNone(first_incident.township)
+            self.assertIsNotNone(first_incident.municipality)
             self.assertIsInstance(first_incident.units, list, "")
 
 if __name__ == '__main__':

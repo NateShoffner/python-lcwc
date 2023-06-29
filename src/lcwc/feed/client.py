@@ -77,19 +77,19 @@ class Client:
             description = entry.title
 
             # Possible formats:
-            # [township];[intersection];[units assigned]
-            # [township];[intersection]
-            # [township];[units assigned]
-            # [township]
+            # [municipality];[intersection];[units assigned]
+            # [municipality];[intersection]
+            # [municipality];[units assigned]
+            # [municipality]
             details_split = entry["description"].strip().split(";", maxsplit=3)
 
-            # first item is always the township
-            township = details_split[0].strip()
+            # first item is always the municipality
+            municipality = details_split[0].strip()
 
             intersection = None
             units = []
 
-            # skip if only township is present
+            # skip if only municipality is present
             if len(details_split) >= 2:
                 if has_unit_names(details_split[1]):
                     units = self.__extract_units(details_split[1])
@@ -103,7 +103,7 @@ class Client:
 
             incidents.append(
                 FeedIncident(
-                    category, date, description, township, intersection, units, guid
+                    category, date, description, municipality, intersection, units, guid
                 )
             )
 
