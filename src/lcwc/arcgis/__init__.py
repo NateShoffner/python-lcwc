@@ -1,2 +1,2 @@
 from .client import Client
-from .incident import Incident
+from .incident import ArcGISIncident

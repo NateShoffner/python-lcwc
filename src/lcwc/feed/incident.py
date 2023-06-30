@@ -3,7 +3,7 @@
 # since apparently every detail is subject to change except maybe the timestamp
 import datetime
 from lcwc.category import IncidentCategory
-from lcwc.web.incident import Incident
+from lcwc.web.incident import WebIncident as Incident
 
 
 class FeedIncident(Incident):

@@ -1,7 +1,6 @@
 import aiohttp
 import unittest
-from lcwc.arcgis import Client
-from lcwc.web.incident import Incident
+from lcwc.arcgis import Client, ArcGISIncident as Incident
 from unittest import IsolatedAsyncioTestCase
 
 class WebClientTest(IsolatedAsyncioTestCase):

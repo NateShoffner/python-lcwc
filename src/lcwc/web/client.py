@@ -3,7 +3,7 @@ import aiohttp
 import pytz
 from bs4 import BeautifulSoup
 from lcwc.category import IncidentCategory
-from lcwc.web.incident import Incident
+from lcwc.web.incident import WebIncident as Incident
 
 DATE_FORMAT = "%a, %b %d, %Y %H:%M"
 """ The date format used on the LCWC website """
