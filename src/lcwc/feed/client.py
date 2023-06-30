@@ -2,7 +2,12 @@ import aiohttp
 import datetime
 import feedparser
 import pytz
-from .utils import FIRE_UNIT_NAMES, LOCATION_NAMES,MEDICAL_UNIT_NAMES, determine_category
+from .utils import (
+    FIRE_UNIT_NAMES,
+    LOCATION_NAMES,
+    MEDICAL_UNIT_NAMES,
+    determine_category,
+)
 from lcwc.feed.incident import FeedIncident
 
 """
