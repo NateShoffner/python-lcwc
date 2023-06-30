@@ -2,6 +2,8 @@ import aiohttp
 import datetime
 import feedparser
 import pytz
+
+from lcwc import Client
 from .utils import (
     FIRE_UNIT_NAMES,
     LOCATION_NAMES,
@@ -23,11 +25,16 @@ Example entry:
 """
 
 
-class Client:
+class FeedClient(Client):
     """Client for the incident RSS feed"""
 
     URL = "https://webcad.lcwc911.us/Pages/Public/LiveIncidentsFeed.aspx"
     """ The URL of the live incident feed """
+
+    @property
+    def name(self) -> str:
+        """Returns the name of the client"""
+        return "FeedClient"
 
     async def get_incidents(
         self, session: aiohttp.ClientSession, timeout: int = 10

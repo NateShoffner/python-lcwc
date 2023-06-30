@@ -1,10 +1,10 @@
 import aiohttp
 import asyncio
-from lcwc.arcgis import Client
+from lcwc.arcgis import ArcGISClient
 
 
 async def main():
-    client = Client()
+    client = ArcGISClient()
 
     async with aiohttp.ClientSession() as session:
         incidents = await client.get_incidents(session)

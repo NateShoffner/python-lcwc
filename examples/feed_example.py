@@ -1,10 +1,10 @@
 import aiohttp
 import asyncio
-from lcwc.feed import Client
+from lcwc.feed import FeedClient
 
 
 async def main():
-    client = Client()
+    client = FeedClient()
 
     async with aiohttp.ClientSession() as session:
         incidents = await client.get_incidents(session)

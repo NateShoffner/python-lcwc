@@ -1,10 +1,10 @@
 import aiohttp
 import asyncio
-from lcwc.web import Client
+from lcwc.web import WebClient
 
 
 async def main():
-    client = Client()
+    client = WebClient()
 
     async with aiohttp.ClientSession() as session:
         incidents = await client.get_incidents(session)

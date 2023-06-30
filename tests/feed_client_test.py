@@ -1,13 +1,13 @@
 import aiohttp
 import unittest
-from lcwc.feed import Client, FeedIncident as Incident
+from lcwc.feed import FeedClient, FeedIncident
 from unittest import IsolatedAsyncioTestCase
 
 
 class WebClientTest(IsolatedAsyncioTestCase):
     async def test_fetch(self):
         async with aiohttp.ClientSession() as session:
-            client = Client()
+            client = FeedClient()
             incidents = await client.get_incidents(session)
 
             self.assertIsNotNone(incidents)
@@ -15,7 +15,7 @@ class WebClientTest(IsolatedAsyncioTestCase):
 
             first_incident = incidents[0]
             self.assertIsNotNone(first_incident)
-            self.assertIsInstance(first_incident, Incident, "")
+            self.assertIsInstance(first_incident, FeedIncident, "")
 
             self.assertIsNotNone(first_incident.category)
             self.assertIsNotNone(first_incident.description)

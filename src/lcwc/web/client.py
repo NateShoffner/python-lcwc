@@ -2,6 +2,7 @@ import datetime
 import aiohttp
 import pytz
 from bs4 import BeautifulSoup
+from lcwc import Client
 from lcwc.category import IncidentCategory
 from lcwc.web.incident import WebIncident as Incident
 
@@ -9,11 +10,16 @@ DATE_FORMAT = "%a, %b %d, %Y %H:%M"
 """ The date format used on the LCWC website """
 
 
-class Client:
+class WebClient(Client):
     """Client for scraping the live incident page"""
 
     URL = "https://www.lcwc911.us/live-incident-list"
     """ The URL of the live incident page """
+
+    @property
+    def name(self) -> str:
+        """Returns the name of the client"""
+        return "WebClient"
 
     async def get_incidents(
         self, session: aiohttp.ClientSession, timeout: int = 10
