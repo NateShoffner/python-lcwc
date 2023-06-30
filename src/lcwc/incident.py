@@ -1,10 +1,11 @@
+from abc import ABC
 import datetime
+
 from lcwc.category import IncidentCategory
-from lcwc.incident import Incident
 from lcwc.unit import Unit
 
 
-class WebIncident(Incident):
+class Incident(ABC):
     """Represents an incident"""
 
     def __init__(
@@ -16,21 +17,6 @@ class WebIncident(Incident):
         intersection: str,
         units: list[Unit] = [],
     ) -> None:
-        """Constructor.
-
-        :param IncidentCategory category: The category of the incident
-
-        :param datetime date: The date and time of the incident in local time (EST)
-
-        :param str description: The description of the incident
-
-        :param str municipality: The location of the incident location
-
-        :param str intersection: The intersection of the incident location
-
-        :param list[str] units: A list of units responding to the incident
-        """
-
         self._category = category
         self._date = date
         self._description = description
@@ -64,19 +50,6 @@ class WebIncident(Incident):
         return self._intersection
 
     @property
-    def location(self) -> str:
-        """Returns the full location of the incident"""
-        if self._intersection is None:
-            return self._municipality
-        else:
-            return "\n".join([self._intersection, self._municipality])
-
-    @property
     def units(self) -> list[Unit]:
         """Returns a list of units responding to the incident"""
         return self._units
-
-    @property
-    def units_pending(self) -> bool:
-        """Returns true if the incident has units pending"""
-        return any([unit == "PENDING" for unit in self._units])

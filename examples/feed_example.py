@@ -16,8 +16,8 @@ async def main():
             print(f"Description: {incident.description}")
             print(f"Intersection: {incident.intersection}")
             print(f"Municipality: {incident.municipality}")
-            units = "None" if len(incident.units) == 0 else ", ".join(incident.units)
-            print(f"Units: {units}")
+            unit_names = [unit.name for unit in incident.units]
+            print(f"Units: {'None' if len(unit_names) == 0 else ', '.join(unit_names)}")
             print(f"GUID: {incident.guid}")
 
         print("-----")

@@ -4,6 +4,7 @@ import feedparser
 import pytz
 
 from lcwc import Client
+from lcwc.unit import Unit
 from .utils import (
     FIRE_UNIT_NAMES,
     LOCATION_NAMES,
@@ -126,4 +127,5 @@ class FeedClient(Client):
         units_data = units_data.strip()
         if units_data == "":
             return []
-        return [u.strip() for u in units_data.strip().split("<br />")]
+        unit_names = [u.strip() for u in units_data.strip().split("<br />")]
+        return [Unit(u) for u in unit_names]

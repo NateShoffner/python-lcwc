@@ -3,7 +3,8 @@
 # since apparently every detail is subject to change except maybe the timestamp
 import datetime
 from lcwc.category import IncidentCategory
-from lcwc.web.incident import WebIncident as Incident
+from lcwc.incident import Incident
+from lcwc.unit import Unit
 
 
 class FeedIncident(Incident):
@@ -16,7 +17,7 @@ class FeedIncident(Incident):
         description: str,
         municipality: str,
         intersection: str,
-        units: list[str] = [],
+        units: list[Unit] = [],
         guid: str = None,
     ) -> None:
         super().__init__(category, date, description, municipality, intersection, units)

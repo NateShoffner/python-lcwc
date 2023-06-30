@@ -1,4 +1,5 @@
 from lcwc.category import IncidentCategory
+from lcwc.unit import Unit
 
 """ A list of keywords that indicate a location name"""
 FIRE_UNIT_NAMES = [
@@ -49,7 +50,7 @@ FIRE_DESCRIPTION_KEYWORDS = ["FIRE"]
 TRAFFIC_DESCRIPTION_KEYWORDS = ["TRAFFIC", "VEHICLE"]
 
 
-def determine_category(description: str, units: list[str]) -> IncidentCategory:
+def determine_category(description: str, units: list[Unit]) -> IncidentCategory:
     """Determines the category of an incident based on the description and units assigned
 
     :param description: The description of the incident
@@ -60,9 +61,9 @@ def determine_category(description: str, units: list[str]) -> IncidentCategory:
 
     # check for unit matches
     for unit in units:
-        if any(k in unit for k in FIRE_UNIT_NAMES):
+        if any(k in unit.name for k in FIRE_UNIT_NAMES):
             return IncidentCategory.FIRE
-        elif any(k in unit for k in MEDICAL_UNIT_NAMES):
+        elif any(k in unit.name for k in MEDICAL_UNIT_NAMES):
             return IncidentCategory.MEDICAL
 
     # extra note regarding traffic incidents: they tend to not have units assigned

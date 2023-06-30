@@ -4,6 +4,7 @@ import pytz
 from bs4 import BeautifulSoup
 from lcwc import Client
 from lcwc.category import IncidentCategory
+from lcwc.unit import Unit
 from lcwc.web.incident import WebIncident as Incident
 
 DATE_FORMAT = "%a, %b %d, %Y %H:%M"
@@ -97,10 +98,12 @@ class WebClient(Client):
                     municipality = location[1]
 
                 # we have to decode manually because of internal <br/> tags
-                units = [
+                unit_names = [
                     u.strip()
                     for u in units_row.decode_contents().strip().split("<br/>")
                 ]
+
+                units = [Unit(u) for u in unit_names if u != ""]
 
                 incident = Incident(
                     category, date, description, municipality, intersection, units

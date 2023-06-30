@@ -5,6 +5,7 @@ import re
 from lcwc import Client
 from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
+from lcwc.unit import Unit
 from lcwc.utils.restadapter import RestAdapter, RestException
 
 
@@ -155,7 +156,8 @@ class ArcGISClient(Client):
 
         # unit names are condensed, lacking spaces and delimiters (ex: MED8611)
         if "CurrentUnits" in attributes and attributes["CurrentUnits"] is not None:
-            units = attributes["CurrentUnits"].split(",")
+            unit_names = attributes["CurrentUnits"].split(",")
+            units = [Unit(unit_name) for unit_name in unit_names]
         else:
             units = []
 

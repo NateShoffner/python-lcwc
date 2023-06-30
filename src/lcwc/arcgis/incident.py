@@ -1,7 +1,9 @@
 import datetime
-from lcwc.web.incident import WebIncident as Incident
+from lcwc.incident import Incident
 from lcwc.category import IncidentCategory
 from collections import namedtuple
+
+from lcwc.unit import Unit
 
 Coordinates = namedtuple("Coordinates", ["longitude", "latitude"])
 
@@ -21,7 +23,7 @@ class ArcGISIncident(Incident):
         agency: str,
         public: bool,
         coordinates: Coordinates,
-        units: list[str] = [],
+        units: list[Unit] = [],
     ) -> None:
         super().__init__(category, date, description, municipality, intersection, units)
         self._incident_number = number
