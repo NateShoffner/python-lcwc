@@ -1,6 +1,6 @@
 import datetime
 from lcwc.category import IncidentCategory
-from lcwc.incident import Incident
+from lcwc.web.incident import Incident
 
 """ A list of keywords that indicate a location name"""
 FIRE_UNIT_NAMES = [

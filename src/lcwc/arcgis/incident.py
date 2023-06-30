@@ -1,5 +1,5 @@
 import datetime
-from lcwc.incident import Incident
+from lcwc.web.incident import Incident
 from lcwc.category import IncidentCategory
 from collections import namedtuple
 

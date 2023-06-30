@@ -2,7 +2,7 @@ import datetime
 from lcwc.category import IncidentCategory
 
 
-class Incident:
+class WebIncident:
     """Represents an incident"""
 
     def __init__(

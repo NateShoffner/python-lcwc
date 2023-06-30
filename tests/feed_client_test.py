@@ -1,7 +1,7 @@
 import aiohttp
 import unittest
 from lcwc.feed import Client
-from lcwc.incident import Incident
+from lcwc.web.incident import Incident
 from unittest import IsolatedAsyncioTestCase
 
 class WebClientTest(IsolatedAsyncioTestCase):
