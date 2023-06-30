@@ -1,6 +1,6 @@
 [project]
 name = "lcwc"
-version = "0.4"
+version = "0.5"
 authors = [
   { name="Nate Shoffner", email="nate.shoffner@gmail.com" },
 ]
@@ -17,7 +17,8 @@ classifiers = [
 dependencies = [
     "bs4", 
     "aiohttp", 
-    "feedparser"
+    "feedparser",
+    "pytz"
 ]
 
 [tool.setuptools.packages.find]
