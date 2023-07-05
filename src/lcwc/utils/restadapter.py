@@ -10,17 +10,20 @@ class Result:
         status_code: int,
         headers: Dict,
         message: str = "",
+        url: str = "",
         data: List[Dict] = None,
     ):
         """
         Result returned from low-level RestAdapter
         :param status_code: Standard HTTP Status code
         :param message: Human readable result
+        :param url: URL of the response
         :param data: Python List of Dictionaries (or maybe just a single Dictionary on error)
         """
         self.status_code = int(status_code)
         self.headers = headers
         self.message = str(message)
+        self.url = url
         self.data = data if data else []
 
 
@@ -100,6 +103,7 @@ class RestAdapter:
                 status_code,
                 headers=response.headers,
                 message=response.reason,
+                url=response.url,
                 data=data_out,
             )
         raise RestException(f"{status_code}: {response.reason}")
