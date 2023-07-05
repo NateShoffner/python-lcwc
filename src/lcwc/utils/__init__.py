@@ -1,6 +1,8 @@
 import datetime
 from lcwc.web.incident import WebIncident as Incident
 
+from .encoding import IncidentEncoder, IncidentDecoder
+
 
 def is_related_incident(a: Incident, b: Incident, delta: datetime.timedelta) -> bool:
     """Determines if two incidents are related based on the intersection and time delta
