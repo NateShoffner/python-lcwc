@@ -1,58 +1,35 @@
+from dataclasses import dataclass
 import datetime
 from lcwc.incident import Incident
 from lcwc.category import IncidentCategory
-from collections import namedtuple
 
 from lcwc.unit import Unit
 
-Coordinates = namedtuple("Coordinates", ["longitude", "latitude"])
+@dataclass
+class Coordinates:
+    """Represents the coordinates of an incident"""
 
+    """ The longitude of the incident """
+    longitude: float
 
+    """ The latitude of the incident """
+    latitude: float
+
+@dataclass
 class ArcGISIncident(Incident):
     """Represents an incident from the live ArcGIS REST API"""
 
-    def __init__(
-        self,
-        category: IncidentCategory,
-        date: datetime,
-        description: str,
-        municipality: str,
-        intersection: str,
-        number: int,
-        priority: int,
-        agency: str,
-        public: bool,
-        coordinates: Coordinates,
-        units: list[Unit] = [],
-    ) -> None:
-        super().__init__(category, date, description, municipality, intersection, units)
-        self._incident_number = number
-        self._priority = priority
-        self._agency = agency
-        self._public = public
-        self._coordinates = coordinates
+    """ The number of the incident """
+    number: int
 
-    @property
-    def number(self) -> int:
-        """Returns the number of the incident"""
-        return self._incident_number
+    """ The priority of the incident """
+    priority: int
 
-    @property
-    def priority(self) -> int:
-        """Returns the priority of the incident"""
-        return self._priority
+    """ The agency handling the incident """
+    agency: str
 
-    @property
-    def agency(self) -> str:
-        """Returns the agency of the incident"""
-        return self._agency
+    """ Whether the incident is public """
+    public: bool
 
-    @property
-    def coordinates(self) -> Coordinates:
-        """Returns the coordinates of the incident"""
-        return self._coordinates
-
-    @property
-    def public(self) -> bool:
-        """Returns whether the incident is public"""
-        return self._public
+    """ The coordinates of the incident """
+    coordinates: Coordinates

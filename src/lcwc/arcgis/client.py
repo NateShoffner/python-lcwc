@@ -179,11 +179,11 @@ class ArcGISClient(Client):
             description,
             municipality,
             intersection,
+            units,
             number,
             priority,
             agency,
             public,
-            coords,
-            units,
+            coords
         )
         return incident

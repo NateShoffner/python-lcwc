@@ -1,55 +1,28 @@
-from abc import ABC
+from dataclasses import dataclass, field
 import datetime
 
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
 
 
-class Incident(ABC):
+@dataclass
+class Incident:
     """Represents an incident"""
 
-    def __init__(
-        self,
-        category: IncidentCategory,
-        date: datetime,
-        description: str,
-        municipality: str,
-        intersection: str,
-        units: list[Unit] = [],
-    ) -> None:
-        self._category = category
-        self._date = date
-        self._description = description
-        self._municipality = municipality
-        self._intersection = intersection
-        self._units = units
+    """ The category of the incident """
+    category: IncidentCategory
 
-    @property
-    def category(self) -> IncidentCategory:
-        """Returns the category of the incident"""
-        return self._category
+    """ The date and time of the incident """
+    date: datetime
 
-    @property
-    def date(self) -> datetime:
-        """Returns the date and time of the incident"""
-        return self._date
+    """ The description of the incident """
+    description: str
 
-    @property
-    def description(self) -> str:
-        """Returns the incident description"""
-        return self._description
+    """ The location of the incident location """
+    municipality: str
 
-    @property
-    def municipality(self) -> str:
-        """Returns the municipality of the incident location"""
-        return self._municipality
+    """ The intersection of the incident location """
+    intersection: str
 
-    @property
-    def intersection(self) -> str:
-        """Returns the intersection of the incident location"""
-        return self._intersection
-
-    @property
-    def units(self) -> list[Unit]:
-        """Returns a list of units responding to the incident"""
-        return self._units
+    """ A list of units responding to the incident """
+    units: list[Unit]
