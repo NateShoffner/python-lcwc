@@ -1,3 +1,4 @@
+import logging
 import aiohttp
 import datetime
 import json
@@ -11,6 +12,10 @@ from lcwc.utils.restadapter import RestAdapter, RestException
 
 class ArcGISClient(Client):
     """Client for the ArcGIS REST API"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.logger = logging.getLogger(__name__)
 
     @property
     def name(self) -> str:
@@ -70,7 +75,8 @@ class ArcGISClient(Client):
                 continue
 
             if cat not in layer_mapping:
-                print(f"No layer mapping for {cat}")
+                self.logger.error(f"No layer mapping for {cat}")
+                continue
 
             layer_id = layer_mapping[cat]
 
@@ -118,18 +124,20 @@ class ArcGISClient(Client):
 
             try:
                 resp = await adapter.get(endpoint=f"{layer_id}/query", ep_params=params)
+
             except RestException as e:
-                print(f"{cat} Error: {e}")
+                self.logger.error(f"{cat} Error: {e}")
                 continue
 
+            self.logger.debug(f"{resp.url}")
+
             if resp.status_code != 200:
-                print(f"Error: {resp.status_code} for {cat}")
+                self.logger.error(f"Error: {resp.status_code} for {cat}")
                 continue
 
             error = resp.data.get("error", None)
             if error:
-                print(resp.url)
-                print(f"Error: {error}")
+                self.logger.error(f"Response error: {error}")
                 continue
 
             if "features" not in resp.data:
