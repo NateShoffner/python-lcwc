@@ -1,5 +1,3 @@
-from ast import List
-from pydantic import RootModel
 from lcwc.agency import Agency
 from lcwc.category import IncidentCategory
 
