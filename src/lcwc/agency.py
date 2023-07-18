@@ -35,4 +35,7 @@ class Agency(BaseModel):
     def __eq__(self, other):
         if not isinstance(other, Agency):
             return False
-        return self.station_number == other.station_number
+        return (
+            self.category == other.category
+            and self.station_number == other.station_number
+        )
