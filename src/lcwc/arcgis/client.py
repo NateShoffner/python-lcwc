@@ -3,6 +3,8 @@ import aiohttp
 import datetime
 import json
 import re
+
+import pytz
 from lcwc import Client
 from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
@@ -155,7 +157,14 @@ class ArcGISClient(Client):
         attributes = incident["attributes"]
         geometry = incident["geometry"]
 
-        date = datetime.datetime.fromtimestamp(attributes["IncidentOrigination"] / 1000)
+
+        # convert date to UTC
+
+        raw_date = datetime.datetime.fromtimestamp(attributes["IncidentOrigination"] / 1000)
+        local_tz = pytz.timezone("America/New_York")
+        local_dt = local_tz.localize(raw_date, is_dst=None)  
+        date = local_dt.astimezone(pytz.utc)
+        
         municipality = attributes["IncidentMunicipality"]
 
         intersection = re.sub(
