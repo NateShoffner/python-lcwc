@@ -91,7 +91,7 @@ class RestAdapter:
 
         # deserialize
         try:
-            data_out = await response.json()
+            data_out = await response.json(content_type=None)
         except (ValueError, TypeError, JSONDecodeError) as e:
             raise RestException("Bad JSON in response") from e
 
