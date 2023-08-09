@@ -157,14 +157,15 @@ class ArcGISClient(Client):
         attributes = incident["attributes"]
         geometry = incident["geometry"]
 
-
         # convert date to UTC
 
-        raw_date = datetime.datetime.fromtimestamp(attributes["IncidentOrigination"] / 1000)
+        raw_date = datetime.datetime.fromtimestamp(
+            attributes["IncidentOrigination"] / 1000
+        )
         local_tz = pytz.timezone("America/New_York")
-        local_dt = local_tz.localize(raw_date, is_dst=None)  
+        local_dt = local_tz.localize(raw_date, is_dst=None)
         date = local_dt.astimezone(pytz.utc)
-        
+
         municipality = attributes["IncidentMunicipality"]
 
         intersection = re.sub(
@@ -174,7 +175,7 @@ class ArcGISClient(Client):
         # unit names are condensed, lacking spaces and delimiters (ex: MED8611)
         if "CurrentUnits" in attributes and attributes["CurrentUnits"] is not None:
             unit_names = attributes["CurrentUnits"].split(",")
-            units = [Unit(unit_name) for unit_name in unit_names]
+            units = [Unit(short_name=unit_name) for unit_name in unit_names]
         else:
             units = []
 
@@ -201,6 +202,6 @@ class ArcGISClient(Client):
             priority,
             agency,
             public,
-            coords
+            coords,
         )
         return incident

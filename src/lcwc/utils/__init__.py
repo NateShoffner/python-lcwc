@@ -31,17 +31,19 @@ def find_associated_agency(
 
     """
     # non-regex alternative
-    unit_groups = ["".join(x) for _, x in itertools.groupby(unit.name, key=str.isdigit)]
+    unit_groups = ["".join(x) for _, x in itertools.groupby(unit.short_name, key=str.isdigit)]
     abbr = unit_groups[0]
     identifer = unit_groups[1]
     county_abbr = unit_groups[2] if len(unit_groups) > 2 else None
     """
 
+    # TODO handle full-length unit names
+
     # Ex: "ENG531" -> "ENG", "531", None
     # Ex: "AMB891CHE" -> "AMB", "891", "CHE"
-    match = re.match(r"([a-zA-Z]+)([0-9]+)([a-zA-Z]*)", unit.name)
+    match = re.match(r"([a-zA-Z]+)([0-9]+)([a-zA-Z]*)", unit.short_name)
     if match is None:
-        raise ValueError(f"Unable to parse unit name: {unit.name}")
+        raise ValueError(f"Unable to parse unit name: {unit.short_name}")
 
     abbr, identifer, county_abbr = match.groups()
     if county_abbr:
@@ -62,7 +64,7 @@ def find_associated_agency(
             if agency.station_number == padded_id and agency.category == category:
                 """
                 print(
-                    f"Match found for {unit.name} -> {agency.name} (Station ID: {agency.station_number}) -> (Unit ID: {agency_suffix})"
+                    f"Match found for {unit.short_name} -> {agency.name} (Station ID: {agency.station_number}) -> (Unit ID: {agency_suffix})"
                 )
                 """
                 return agency
