@@ -29,15 +29,52 @@ def find_associated_agency(
 ) -> Agency:
     """Attempts to find the agency associated with the given unit and category within the list of agencies provided"""
 
+    if unit.short_name is not None:
+        return __unit_short_name_to_agency(unit, category, agencies)
+
+    if unit.name is not None:
+        return __unit_name_to_agency(unit, category, agencies)
+
+    return None
+
+
+def __unit_name_to_agency(
+    unit: Unit, category: IncidentCategory, agencies: list[Agency]
+):
+    """Identifies the agency associated with the given unit name"""
+
+    # Ex: QRS 10
+    # Ex: MEDIC 56-4
+    # Ex: AMB 89-1 CHESTER
+    match = re.match(
+        r"^([a-zA-Z ]+) ([0-9]+)(?:-([0-9]+))?(?: ([a-zA-Z ]+))?", unit.name
+    )
+    if match is None:
+        raise ValueError(f"Unable to parse unit name: {unit.name}")
+
+    name, station_id, identifier, county_name = match.groups()
+
+    if county_name:
+        # TODO handle out-of-county units
+        raise ValueError("Out-of-county units not supported")
+
+    for agency in agencies:
+        if agency.station_number == station_id and agency.category == category:
+            return agency
+
+
+def __unit_short_name_to_agency(
+    unit: Unit, category: IncidentCategory, agencies: list[Agency]
+):
+    """Identifies the agency associated with the given unit short name"""
+
     """
-    # non-regex alternative
+    # non-regex alternative for short_name parsing
     unit_groups = ["".join(x) for _, x in itertools.groupby(unit.short_name, key=str.isdigit)]
     abbr = unit_groups[0]
     identifer = unit_groups[1]
     county_abbr = unit_groups[2] if len(unit_groups) > 2 else None
     """
-
-    # TODO handle full-length unit names
 
     # Ex: "ENG531" -> "ENG", "531", None
     # Ex: "AMB891CHE" -> "AMB", "891", "CHE"
