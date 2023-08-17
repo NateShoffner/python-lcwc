@@ -92,7 +92,7 @@ class AgencyClient:
             address = address_cell.text.strip()
             city = city_cell.text.strip()
             state = state_cell.text.strip()
-            zip_code = zip_cell.text.strip()
+            zip_code = int(zip_cell.text.strip())
             phone = phone_cell.text.strip()
 
             agencies.append(

@@ -27,7 +27,7 @@ class Agency(BaseModel):
     state: str
 
     """ The zip code of the agency """
-    zip_code: str
+    zip_code: int
 
     """ The phone number of the agency """
     phone: str
