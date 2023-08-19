@@ -1,0 +1,2 @@
+class OutOfCountyException(Exception):
+    pass

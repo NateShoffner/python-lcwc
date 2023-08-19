@@ -1,6 +1,6 @@
 import aiohttp
 import asyncio
-from lcwc.agencyclient import AgencyClient
+from lcwc.agencies.agencyclient import AgencyClient
 from lcwc.category import IncidentCategory
 
 

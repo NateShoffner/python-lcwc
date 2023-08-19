@@ -1,4 +1,4 @@
-from lcwc.agency import Agency
+from lcwc.agencies.agency import Agency
 from lcwc.category import IncidentCategory
 
 

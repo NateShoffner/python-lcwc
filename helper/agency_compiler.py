@@ -5,16 +5,15 @@
 import asyncio
 import aiohttp
 import sys
-from lcwc.agencyclient import AgencyClient
+from lcwc.agencies.agencyclient import AgencyClient
 from lcwc.category import IncidentCategory
 
 
 async def main():
-
     if len(sys.argv) == 1:
         print("Usage: python agency_compiler.py <output_filename>")
         return
-    
+
     output_filename = sys.argv[1]
 
     client = AgencyClient()
@@ -47,7 +46,7 @@ async def main():
 
     with open(output_filename, "w") as f:
         for category, agencies in ags.items():
-            f.write(f"{category}_AGENCIES = [\n")
+            f.write(f"KNOWN_{category}_AGENCIES = [\n")
 
             for agency in agencies:
                 f.write("    Agency(\n")
@@ -68,7 +67,7 @@ async def main():
             f.write("]\n\n")
 
         f.write(
-            "COMPLETE_AGENICES = FIRE_AGENCIES + MEDICAL_AGENCIES + TRAFFIC_AGENCIES"
+            "ALL_KNOWN_AGENCIES = KNOWN_FIRE_AGENCIES + KNOWN_MEDICAL_AGENCIES + KNOWN_TRAFFIC_AGENCIES"
         )
 
 

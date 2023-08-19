@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from lcwc.agencies.agency import Agency
+
 
 @dataclass(eq=False)
 class Unit:
@@ -11,6 +13,14 @@ class Unit:
 
     """ The shorthand name of the unit """
     short_name: Optional[str] = None
+
+    # TODO use the actual non-suffixed name as the name and store unit ID separately
+
+    """ The unit originates from outside of the county """
+    out_of_county: Optional[bool] = False
+
+    """ The agency associated with the unit """
+    agency: Optional[Agency] = None
 
     def __eq__(self, other):
         if not isinstance(other, Unit):
