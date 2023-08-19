@@ -1,5 +1,6 @@
 import aiohttp
 from lcwc import Client
+from lcwc.agencies.agencyresolver import AgencyResolver
 from lcwc.web.incident import WebIncident as Incident
 from lcwc.web.parser import WebParser
 
@@ -10,7 +11,8 @@ class WebClient(Client):
     URL = "https://www.lcwc911.us/live-incident-list"
     """ The URL of the live incident page """
 
-    def __init__(self):
+    def __init__(self, agency_resolver: AgencyResolver = AgencyResolver()) -> None:
+        self.agency_resolver = agency_resolver
         self.parser = WebParser()
 
     @property
@@ -35,4 +37,4 @@ class WebClient(Client):
             else:
                 raise Exception(f"Unable to fetch live incident page: {resp.status}")
 
-        return self.parser.parse(html)
+        return self.parser.parse(html, self.agency_resolver)

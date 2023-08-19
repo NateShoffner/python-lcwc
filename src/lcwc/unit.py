@@ -22,6 +22,8 @@ class Unit:
     """ The agency associated with the unit """
     agency: Optional[Agency] = None
 
+    pending: Optional[bool] = False
+
     def __eq__(self, other):
         if not isinstance(other, Unit):
             return NotImplemented

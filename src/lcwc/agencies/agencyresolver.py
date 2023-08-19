@@ -1,7 +1,7 @@
 import re
 from lcwc.agencies import ALL_KNOWN_AGENCIES
 from lcwc.agencies.agency import Agency
-from lcwc.agencies.exceptions import OutOfCountyException
+from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.category import IncidentCategory
 from lcwc.incident import Incident
 from lcwc.unit import Unit
@@ -20,6 +20,7 @@ class AgencyResolver:
         self.agencies.remove(agency)
 
     def get_agency(self, station_id: str, category: IncidentCategory) -> Agency:
+        """ Attempts to find the agency associated with the given station id and category within the list of agencies provided """
         for agency in self.agencies:
             if agency.station_number == station_id and agency.category == category:
                 return agency
@@ -32,6 +33,7 @@ class AgencyResolver:
 
     def get_unit_agency(self, unit: Unit, category: IncidentCategory) -> Agency:
         """Attempts to find the agency associated with the given unit and category within the list of agencies provided"""
+
         if unit.short_name is not None:
             return self.__unit_short_name_to_agency(unit, category)
         if unit.name is not None:
@@ -39,6 +41,9 @@ class AgencyResolver:
 
     def __unit_name_to_agency(self, unit: Unit, category: IncidentCategory):
         """Identifies the agency associated with the given unit name"""
+
+        if unit.name == "PENDING":
+            raise PendingUnitException("Unit is pending")
 
         # Ex: QRS 10
         # Ex: MEDIC 56-4
@@ -60,12 +65,12 @@ class AgencyResolver:
         """Identifies the agency associated with the given unit short name"""
 
         """
-            # non-regex alternative for short_name parsing
-            unit_groups = ["".join(x) for _, x in itertools.groupby(unit.short_name, key=str.isdigit)]
-            abbr = unit_groups[0]
-            identifer = unit_groups[1]
-            county_abbr = unit_groups[2] if len(unit_groups) > 2 else None
-            """
+        # non-regex alternative for short_name parsing
+        unit_groups = ["".join(x) for _, x in itertools.groupby(unit.short_name, key=str.isdigit)]
+        abbr = unit_groups[0]
+        identifer = unit_groups[1]
+        county_abbr = unit_groups[2] if len(unit_groups) > 2 else None
+        """
 
         # Ex: "ENG531" -> "ENG", "531", None
         # Ex: "AMB891CHE" -> "AMB", "891", "CHE"
@@ -86,4 +91,6 @@ class AgencyResolver:
             agency_suffix = identifer[i + 1 :]
             # agency id is padded with zeros to 2 digits (ex: "07")
             padded_id = str(agency_id_builder.zfill(2))
-            return self.get_agency(padded_id, category)
+            a = self.get_agency(padded_id, category)
+            if a is not None:
+                return a

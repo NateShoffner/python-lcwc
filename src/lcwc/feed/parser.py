@@ -1,6 +1,8 @@
 import datetime
 import feedparser as FP
 import pytz
+from lcwc.agencies.agencyresolver import AgencyResolver
+from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.feed.incident import FeedIncident
 from lcwc.unit import Unit
 from .utils import (
@@ -24,7 +26,8 @@ Example entry:
 
 
 class FeedParser:
-    def parse(self, contents: bytes) -> list[FeedIncident]:
+
+    def parse(self, contents: bytes, agency_resolver: AgencyResolver) -> list[FeedIncident]:
         """Parses the live incident feed and returns a list of incidents
 
         :param contents: The xml of the live incident feed
@@ -76,6 +79,18 @@ class FeedParser:
 
             category = determine_category(description, units)
 
+            # resolve agencies for units
+            if agency_resolver is not None:
+                for unit in units:
+                    try:
+                        agency = agency_resolver.get_unit_agency(unit, category)
+                        if agency is not None:
+                            unit.agency = agency
+                    except PendingUnitException:
+                            unit.pending = True
+                    except OutOfCountyException:
+                            unit.out_of_county = True
+
             incidents.append(
                 FeedIncident(
                     category, date, description, municipality, intersection, units, guid
@@ -95,4 +110,5 @@ class FeedParser:
         if units_data == "":
             return []
         unit_names = [u.strip() for u in units_data.strip().split("<br />")]
-        return [Unit(u) for u in unit_names]
+        units = [Unit(u) for u in unit_names]
+        return units

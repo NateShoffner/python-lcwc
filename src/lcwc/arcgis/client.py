@@ -6,6 +6,8 @@ import re
 
 import pytz
 from lcwc import Client
+from lcwc.agencies.agencyresolver import AgencyResolver
+from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
@@ -15,8 +17,9 @@ from lcwc.utils.restadapter import RestAdapter, RestException
 class ArcGISClient(Client):
     """Client for the ArcGIS REST API"""
 
-    def __init__(self) -> None:
+    def __init__(self, agency_resolver: AgencyResolver = AgencyResolver()) -> None:
         super().__init__()
+        self.agency_resolver = agency_resolver
         self.logger = logging.getLogger(__name__)
 
     @property
@@ -145,14 +148,14 @@ class ArcGISClient(Client):
             if "features" not in resp.data:
                 continue
 
-            for feature in resp.data["features"]:
-                incident = self.__parse_incident(cat, feature)
+            for feature in resp.data["features"]: 
+                incident = self.__parse_incident(cat, feature, self.agency_resolver)
                 incidents.append(incident)
 
         return incidents
 
     def __parse_incident(
-        self, category: IncidentCategory, incident: dict
+        self, category: IncidentCategory, incident: dict, agency_resolver: AgencyResolver = None
     ) -> ArcGISIncident:
         attributes = incident["attributes"]
         geometry = incident["geometry"]
@@ -178,6 +181,18 @@ class ArcGISClient(Client):
             units = [Unit(short_name=unit_name) for unit_name in unit_names]
         else:
             units = []
+
+        # resolve agencies for units
+        if agency_resolver is not None:
+            for unit in units:
+                try:
+                    agency = agency_resolver.get_unit_agency(unit, category)
+                    if agency is not None:
+                        unit.agency = agency
+                except PendingUnitException:
+                        unit.pending = True
+                except OutOfCountyException:
+                        unit.out_of_county = True
 
         number = int(attributes["IncidentNumber"])
 

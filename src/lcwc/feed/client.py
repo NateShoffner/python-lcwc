@@ -1,5 +1,7 @@
 import aiohttp
 from lcwc import Client
+from lcwc.agencies.agencyresolver import AgencyResolver
+from lcwc.agencies.exceptions import OutOfCountyException
 
 from lcwc.feed.incident import FeedIncident
 from lcwc.feed.parser import FeedParser
@@ -11,7 +13,8 @@ class FeedClient(Client):
     URL = "https://webcad.lcwc911.us/Pages/Public/LiveIncidentsFeed.aspx"
     """ The URL of the live incident feed """
 
-    def __init__(self) -> None:
+    def __init__(self, agency_resolver: AgencyResolver = AgencyResolver()) -> None:
+        self.agency_resolver = agency_resolver
         self.parser = FeedParser()
 
     @property
@@ -36,4 +39,4 @@ class FeedClient(Client):
             else:
                 raise Exception(f"Unable to fetch live incident feed: {resp.status}")
 
-        return self.parser.parse(response)
+        return self.parser.parse(response, self.agency_resolver)
