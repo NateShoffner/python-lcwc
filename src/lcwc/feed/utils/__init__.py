@@ -50,26 +50,28 @@ FIRE_DESCRIPTION_KEYWORDS = ["FIRE"]
 TRAFFIC_DESCRIPTION_KEYWORDS = ["TRAFFIC", "VEHICLE"]
 
 
-def determine_category(description: str, units: list[Unit]) -> IncidentCategory:
+def determine_category(description: str, unit_names: list[str]) -> IncidentCategory:
     """Determines the category of an incident based on the description and units assigned
 
     :param description: The description of the incident
-    :param units: The units assigned to the incident
+    :param units: The names of the units assigned to the incident
     :return: The category of the incident
     :rtype: IncidentCategory
     """
 
     # check for unit matches
-    for unit in units:
-        if any(k in unit.name for k in FIRE_UNIT_NAMES):
+    for unit_name in unit_names:
+        if any(k in unit_name for k in FIRE_UNIT_NAMES):
             return IncidentCategory.FIRE
-        elif any(k in unit.name for k in MEDICAL_UNIT_NAMES):
+        elif any(k in unit_name for k in MEDICAL_UNIT_NAMES):
             return IncidentCategory.MEDICAL
 
     # extra note regarding traffic incidents: they tend to not have units assigned
     # unless there is an accompanying fire or medical incident for the same call
     # this needs to be checked before the description check for other categories
-    if len(units) == 0 and any(k in description for k in TRAFFIC_DESCRIPTION_KEYWORDS):
+    if len(unit_names) == 0 and any(
+        k in description for k in TRAFFIC_DESCRIPTION_KEYWORDS
+    ):
         return IncidentCategory.TRAFFIC
 
     # perform a basic description check

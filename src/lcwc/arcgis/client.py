@@ -12,6 +12,7 @@ from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
 from lcwc.utils.restadapter import RestAdapter, RestException
+from lcwc.utils.unitparser import UnitParser
 
 
 class ArcGISClient(Client):
@@ -148,14 +149,17 @@ class ArcGISClient(Client):
             if "features" not in resp.data:
                 continue
 
-            for feature in resp.data["features"]: 
+            for feature in resp.data["features"]:
                 incident = self.__parse_incident(cat, feature, self.agency_resolver)
                 incidents.append(incident)
 
         return incidents
 
     def __parse_incident(
-        self, category: IncidentCategory, incident: dict, agency_resolver: AgencyResolver = None
+        self,
+        category: IncidentCategory,
+        incident: dict,
+        agency_resolver: AgencyResolver = None,
     ) -> ArcGISIncident:
         attributes = incident["attributes"]
         geometry = incident["geometry"]
@@ -175,24 +179,15 @@ class ArcGISClient(Client):
             " +", " ", attributes["PublicLocation"]
         )  # collapse multiple spaces
 
+        unit_names = []
         # unit names are condensed, lacking spaces and delimiters (ex: MED8611)
         if "CurrentUnits" in attributes and attributes["CurrentUnits"] is not None:
             unit_names = attributes["CurrentUnits"].split(",")
-            units = [Unit(short_name=unit_name) for unit_name in unit_names]
-        else:
-            units = []
 
-        # resolve agencies for units
-        if agency_resolver is not None:
-            for unit in units:
-                try:
-                    agency = agency_resolver.get_unit_agency(unit, category)
-                    if agency is not None:
-                        unit.agency = agency
-                except PendingUnitException:
-                        unit.pending = True
-                except OutOfCountyException:
-                        unit.out_of_county = True
+        units = []
+        for unit_name in unit_names:
+            u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+            units.append(u)
 
         number = int(attributes["IncidentNumber"])
 

@@ -2,9 +2,9 @@ import datetime
 import feedparser as FP
 import pytz
 from lcwc.agencies.agencyresolver import AgencyResolver
-from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.feed.incident import FeedIncident
 from lcwc.unit import Unit
+from lcwc.utils.unitparser import UnitParser
 from .utils import (
     FIRE_UNIT_NAMES,
     LOCATION_NAMES,
@@ -26,8 +26,9 @@ Example entry:
 
 
 class FeedParser:
-
-    def parse(self, contents: bytes, agency_resolver: AgencyResolver) -> list[FeedIncident]:
+    def parse(
+        self, contents: bytes, agency_resolver: AgencyResolver
+    ) -> list[FeedIncident]:
         """Parses the live incident feed and returns a list of incidents
 
         :param contents: The xml of the live incident feed
@@ -65,31 +66,25 @@ class FeedParser:
             municipality = details_split[0].strip()
 
             intersection = None
-            units = []
+            unit_names = []
 
             # skip if only municipality is present
             if len(details_split) >= 2:
                 if has_unit_names(details_split[1]):
-                    units = self.__extract_units(details_split[1])
+                    unit_names = self.__extract_unit_names(details_split[1])
                 else:
                     if has_intersection(details_split[1]):
                         intersection = details_split[1].strip()
                     if len(details_split) > 2 and has_unit_names(details_split[2]):
-                        units = self.__extract_units(details_split[2])
+                        unit_names = self.__extract_unit_names(details_split[2])
 
-            category = determine_category(description, units)
+            # we need to resolve the category before we can properly parse the units
+            category = determine_category(description, unit_names)
 
-            # resolve agencies for units
-            if agency_resolver is not None:
-                for unit in units:
-                    try:
-                        agency = agency_resolver.get_unit_agency(unit, category)
-                        if agency is not None:
-                            unit.agency = agency
-                    except PendingUnitException:
-                            unit.pending = True
-                    except OutOfCountyException:
-                            unit.out_of_county = True
+            units = []
+            for unit_name in unit_names:
+                u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+                units.append(u)
 
             incidents.append(
                 FeedIncident(
@@ -99,7 +94,7 @@ class FeedParser:
 
         return incidents
 
-    def __extract_units(self, units_data: str) -> list[str]:
+    def __extract_unit_names(self, units_data: str) -> list[str]:
         """Extracts the units from the data string
 
         :param units_data: The data string containing the units
@@ -110,5 +105,4 @@ class FeedParser:
         if units_data == "":
             return []
         unit_names = [u.strip() for u in units_data.strip().split("<br />")]
-        units = [Unit(u) for u in unit_names]
-        return units
+        return unit_names

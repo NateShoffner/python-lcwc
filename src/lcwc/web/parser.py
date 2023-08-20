@@ -2,9 +2,8 @@ import datetime
 from bs4 import BeautifulSoup
 import pytz
 from lcwc.agencies.agencyresolver import AgencyResolver
-from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.category import IncidentCategory
-from lcwc.unit import Unit
+from lcwc.utils.unitparser import UnitParser
 
 from lcwc.web.incident import WebIncident
 
@@ -66,19 +65,13 @@ class WebParser:
                     for u in units_row.decode_contents().strip().split("<br/>")
                 ]
 
-                units = [Unit(u) for u in unit_names if u != ""]
+                units = []
+                for unit_name in unit_names:
+                    if unit_name == "":
+                        continue
 
-                # resolve agencies for units
-                if agency_resolver is not None:
-                    for unit in units:
-                        try:
-                            agency = agency_resolver.get_unit_agency(unit, category)
-                            if agency is not None:
-                                unit.agency = agency
-                        except PendingUnitException:
-                                unit.pending = True
-                        except OutOfCountyException:
-                                unit.out_of_county = True
+                    u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+                    units.append(u)
 
                 incident = WebIncident(
                     category, date, description, municipality, intersection, units
