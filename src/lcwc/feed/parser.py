@@ -43,8 +43,9 @@ class FeedParser:
             return any(k in details_segment for k in LOCATION_NAMES)
 
         def has_unit_names(details_segment: str) -> bool:
+            details_split = details_segment.split()
             return any(
-                k in details_segment for k in FIRE_UNIT_NAMES + MEDICAL_UNIT_NAMES
+                k in details_split for k in FIRE_UNIT_NAMES + MEDICAL_UNIT_NAMES
             )
 
         for entry in d.entries:

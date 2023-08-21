@@ -61,9 +61,11 @@ def determine_category(description: str, unit_names: list[str]) -> IncidentCateg
 
     # check for unit matches
     for unit_name in unit_names:
-        if any(k in unit_name for k in FIRE_UNIT_NAMES):
+        unit_names_split = unit_name.split()
+
+        if any(k in unit_names_split for k in FIRE_UNIT_NAMES):
             return IncidentCategory.FIRE
-        elif any(k in unit_name for k in MEDICAL_UNIT_NAMES):
+        elif any(k in unit_names_split for k in MEDICAL_UNIT_NAMES):
             return IncidentCategory.MEDICAL
 
     # extra note regarding traffic incidents: they tend to not have units assigned
