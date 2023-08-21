@@ -48,7 +48,7 @@ class UnitParser:
         name, station_id, identifier, county_name = match.groups()
         u.name = name
         u.station_id = station_id
-        u.id = identifier
+        u.id = int(identifier)
 
         if county_name:
             u.county_name = county_name
