@@ -46,6 +46,14 @@ class UnitParser:
             raise ValueError(f"Unable to parse unit name: {unit_str}")
 
         name, station_id, identifier, county_name = match.groups()
+
+        # TODO sometimes the station id is not present in the unit name (ex: "RESCUE 905")
+        # this might just be a misunderstanding in how these units are named
+        # for now, if the identifier is not present, then the station id is the identifier
+        if identifier is None:
+            identifier = station_id
+            station_id = None
+
         u.name = name
         u.station_id = station_id
         u.id = int(identifier)
