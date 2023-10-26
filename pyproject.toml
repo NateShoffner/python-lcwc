@@ -1,6 +1,6 @@
 [project]
 name = "lcwc"
-version = "0.9.2"
+version = "0.9.3"
 authors = [
   { name="Nate Shoffner", email="nate.shoffner@gmail.com" },
 ]
