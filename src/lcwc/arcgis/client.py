@@ -28,7 +28,7 @@ class ArcGISClient(Client):
         return "ArcGISClient"
 
     async def get_incidents(
-        self, session: aiohttp.ClientSession, timeout: int = 10
+        self, session: aiohttp.ClientSession, timeout: int = 10, throw_on_error: bool = False
     ) -> list[ArcGISIncident]:
         """Fetches the page and parses the contents and returns a list of incidents"""
 
@@ -133,6 +133,8 @@ class ArcGISClient(Client):
 
             except RestException as e:
                 self.logger.error(f"{cat} Error: {e}")
+                if throw_on_error:
+                    raise e
                 continue
 
             self.logger.debug(f"{resp.url}")

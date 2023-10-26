@@ -11,7 +11,8 @@ class Client(ABC):
     @abstractmethod
     def name(self):
         pass
-
+    
+    # TODO allow specification of timeout and incident categories
     @abstractmethod
     def get_incidents(self, session: ClientSession) -> list[Incident]:
         pass
