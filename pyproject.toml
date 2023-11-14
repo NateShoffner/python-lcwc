@@ -1,9 +1,9 @@
 [project]
 name = "lcwc"
-version = "0.9.3"
+version = "0.10"
 authors = [
   { name="Nate Shoffner", email="nate.shoffner@gmail.com" },
-]
+] 
 description = "Python library for fetching the Lancaster County-Wide Communications live incident list."
 keywords = ["lcwc", "lancaster", "police", "fire", "ems", "dispatch", "911", "incident"]
 readme = "README.md"
