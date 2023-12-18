@@ -1,14 +1,21 @@
 import datetime
+import logging
 from bs4 import BeautifulSoup
 import pytz
 from lcwc.agencies.agencyresolver import AgencyResolver
+from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.category import IncidentCategory
-from lcwc.utils.unitparser import UnitParser
+from lcwc.utils.unitparser import UnitParser, UnitParserException
 
 from lcwc.web.incident import WebIncident
 
 
 class WebParser:
+
+    def __init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
+
+
     def parse(self, html: str, agency_resolver: AgencyResolver) -> list[WebIncident]:
         """Parses the live incident page and returns a list of incidents"""
 
@@ -69,9 +76,16 @@ class WebParser:
                 for unit_name in unit_names:
                     if unit_name == "":
                         continue
-
-                    u = UnitParser.parse_unit(unit_name, category, agency_resolver)
-                    units.append(u)
+                    
+                    try:
+                        u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+                        units.append(u)
+                    except OutOfCountyException:
+                        self.logger.debug(f"Unit {unit_name} is out of county")
+                    except PendingUnitException:
+                        self.logger.debug(f"Unit {unit_name} is pending")
+                    except UnitParserException:
+                        self.logger.debug(f"Unable to parse unit {unit_name}")
 
                 incident = WebIncident(
                     category, date, description, municipality, intersection, units

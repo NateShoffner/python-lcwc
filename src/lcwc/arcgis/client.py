@@ -12,7 +12,7 @@ from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
 from lcwc.utils.restadapter import RestAdapter, RestException
-from lcwc.utils.unitparser import UnitParser
+from lcwc.utils.unitparser import UnitParser, UnitParserException
 
 
 class ArcGISClient(Client):
@@ -188,8 +188,15 @@ class ArcGISClient(Client):
 
         units = []
         for unit_name in unit_names:
-            u = UnitParser.parse_unit(unit_name, category, agency_resolver)
-            units.append(u)
+            try:
+                u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+                units.append(u)
+            except OutOfCountyException:
+                self.logger.debug(f"Unit {unit_name} is out of county")
+            except PendingUnitException:
+                self.logger.debug(f"Unit {unit_name} is pending")
+            except UnitParserException:
+                self.logger.debug(f"Unable to parse unit {unit_name}")
 
         number = int(attributes["IncidentNumber"])
 

@@ -1,10 +1,12 @@
 import datetime
+import logging
 import feedparser as FP
 import pytz
 from lcwc.agencies.agencyresolver import AgencyResolver
+from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.feed.incident import FeedIncident
 from lcwc.unit import Unit
-from lcwc.utils.unitparser import UnitParser
+from lcwc.utils.unitparser import UnitParser, UnitParserException
 from .utils import (
     FIRE_UNIT_NAMES,
     LOCATION_NAMES,
@@ -26,6 +28,10 @@ Example entry:
 
 
 class FeedParser:
+
+    def __init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
+
     def parse(
         self, contents: bytes, agency_resolver: AgencyResolver
     ) -> list[FeedIncident]:
@@ -84,8 +90,16 @@ class FeedParser:
 
             units = []
             for unit_name in unit_names:
-                u = UnitParser.parse_unit(unit_name, category, agency_resolver)
-                units.append(u)
+
+                try:
+                    u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+                    units.append(u)
+                except OutOfCountyException:
+                    self.logger.debug(f"Unit {unit_name} is out of county")
+                except PendingUnitException:
+                    self.logger.debug(f"Unit {unit_name} is pending")
+                except UnitParserException:
+                    self.logger.debug(f"Unable to parse unit {unit_name}")
 
             incidents.append(
                 FeedIncident(

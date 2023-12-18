@@ -4,6 +4,10 @@ from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
 
 
+class UnitParserException(Exception):
+    pass
+
+
 class UnitParser:
     @staticmethod
     def parse_unit(
@@ -43,7 +47,7 @@ class UnitParser:
             r"^([a-zA-Z ]+) ([0-9]+)(?:-([0-9]+))?(?: ([a-zA-Z ]+))?", unit_str
         )
         if match is None:
-            raise ValueError(f"Unable to parse unit name: {unit_str}")
+            raise UnitParserException(f"Unable to parse unit name: {unit_str}")
 
         name, station_id, identifier, county_name = match.groups()
 
@@ -92,7 +96,7 @@ class UnitParser:
         # Ex: "AMB891CHE" -> "AMB", "891", "CHE"
         match = re.match(r"([a-zA-Z]+)([0-9]+)([a-zA-Z]*)", unit_str)
         if match is None:
-            raise ValueError(f"Unable to parse unit name: {unit_str}")
+            raise UnitParserException(f"Unable to parse unit name: {unit_str}")
 
         abbr, identifer, county_abbr = match.groups()
 
