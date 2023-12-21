@@ -1,8 +1,8 @@
-__title__ = 'lcwc'
-__author__ = 'Nate Shoffner'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2023-present Nate Shoffner'
-__version__ = '0.11'
+__title__ = "lcwc"
+__author__ = "Nate Shoffner"
+__license__ = "MIT"
+__copyright__ = "Copyright 2023-present Nate Shoffner"
+__version__ = "0.12.3"
 
 from .agencies.agency import Agency
 from .agencies.agencyclient import AgencyClient

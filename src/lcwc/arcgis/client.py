@@ -14,13 +14,10 @@ from lcwc.unit import Unit
 from lcwc.utils.restadapter import RestAdapter, RestException
 from lcwc.utils.unitparser import UnitParser
 
-# ArcGISError that inherits from Exception and accepts a message
-class ArcGISError(Exception):
-    def __init__(self, message: str = None) -> None:
-        self.message = message
 
-    def __str__(self) -> str:
-        return self.message
+class ArcGISException(Exception):
+    pass
+
 
 class ArcGISClient(Client):
     """Client for the ArcGIS REST API"""
@@ -35,7 +32,10 @@ class ArcGISClient(Client):
         return "ArcGISClient"
 
     async def get_incidents(
-        self, session: aiohttp.ClientSession, timeout: int = 10, throw_on_error: bool = False
+        self,
+        session: aiohttp.ClientSession,
+        timeout: int = 10,
+        throw_on_error: bool = False,
     ) -> list[ArcGISIncident]:
         """Fetches the page and parses the contents and returns a list of incidents"""
 
@@ -147,15 +147,15 @@ class ArcGISClient(Client):
             self.logger.debug(f"{resp.url}")
 
             if resp.status_code != 200:
-                if throw_on_error
-                    raise ArcGISError(error)
+                if throw_on_error:
+                    raise ArcGISException(error)
                 self.logger.error(f"Error: {resp.status_code} for {cat}")
                 continue
 
             error = resp.data.get("error", None)
             if error:
-                if throw_on_error
-                    raise ArcGISError(error)
+                if throw_on_error:
+                    raise ArcGISException(error)
                 self.logger.error(f"Response error: {error}")
                 continue
 
