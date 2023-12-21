@@ -28,7 +28,6 @@ Example entry:
 
 
 class FeedParser:
-
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
@@ -50,9 +49,7 @@ class FeedParser:
 
         def has_unit_names(details_segment: str) -> bool:
             details_split = details_segment.split()
-            return any(
-                k in details_split for k in FIRE_UNIT_NAMES + MEDICAL_UNIT_NAMES
-            )
+            return any(k in details_split for k in FIRE_UNIT_NAMES + MEDICAL_UNIT_NAMES)
 
         for entry in d.entries:
             guid = entry.guid
@@ -90,7 +87,6 @@ class FeedParser:
 
             units = []
             for unit_name in unit_names:
-
                 try:
                     u = UnitParser.parse_unit(unit_name, category, agency_resolver)
                     units.append(u)

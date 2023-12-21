@@ -11,10 +11,8 @@ from lcwc.web.incident import WebIncident
 
 
 class WebParser:
-
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
-
 
     def parse(self, html: str, agency_resolver: AgencyResolver) -> list[WebIncident]:
         """Parses the live incident page and returns a list of incidents"""
@@ -76,7 +74,7 @@ class WebParser:
                 for unit_name in unit_names:
                     if unit_name == "":
                         continue
-                    
+
                     try:
                         u = UnitParser.parse_unit(unit_name, category, agency_resolver)
                         units.append(u)
