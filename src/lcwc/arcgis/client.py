@@ -12,8 +12,15 @@ from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
 from lcwc.utils.restadapter import RestAdapter, RestException
-from lcwc.utils.unitparser import UnitParser, UnitParserException
+from lcwc.utils.unitparser import UnitParser
 
+# ArcGISError that inherits from Exception and accepts a message
+class ArcGISError(Exception):
+    def __init__(self, message: str = None) -> None:
+        self.message = message
+
+    def __str__(self) -> str:
+        return self.message
 
 class ArcGISClient(Client):
     """Client for the ArcGIS REST API"""
@@ -140,11 +147,15 @@ class ArcGISClient(Client):
             self.logger.debug(f"{resp.url}")
 
             if resp.status_code != 200:
+                if throw_on_error
+                    raise ArcGISError(error)
                 self.logger.error(f"Error: {resp.status_code} for {cat}")
                 continue
 
             error = resp.data.get("error", None)
             if error:
+                if throw_on_error
+                    raise ArcGISError(error)
                 self.logger.error(f"Response error: {error}")
                 continue
 
@@ -188,15 +199,8 @@ class ArcGISClient(Client):
 
         units = []
         for unit_name in unit_names:
-            try:
-                u = UnitParser.parse_unit(unit_name, category, agency_resolver)
-                units.append(u)
-            except OutOfCountyException:
-                self.logger.debug(f"Unit {unit_name} is out of county")
-            except PendingUnitException:
-                self.logger.debug(f"Unit {unit_name} is pending")
-            except UnitParserException:
-                self.logger.debug(f"Unable to parse unit {unit_name}")
+            u = UnitParser.parse_unit(unit_name, category, agency_resolver)
+            units.append(u)
 
         number = int(attributes["IncidentNumber"])
 
