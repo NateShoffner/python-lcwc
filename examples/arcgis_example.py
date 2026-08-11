@@ -21,8 +21,14 @@ async def main():
             print(f"Number: {incident.number}")
             print(f"Priority: {incident.priority}")
             print(f"Agency: {incident.agency}")
+            coordinates = incident.coordinates
             print(
-                f"Coordinates: {incident.coordinates.latitude}, {incident.coordinates.longitude}"
+                "Coordinates: "
+                + (
+                    f"{coordinates.latitude}, {coordinates.longitude}"
+                    if coordinates
+                    else "None"
+                )
             )
 
         print("-----")

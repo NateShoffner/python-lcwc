@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from lcwc.incident import Incident
 from collections import namedtuple
 
@@ -30,5 +31,5 @@ class ArcGISIncident(Incident):
     """ Whether the incident is public """
     public: bool
 
-    """ The coordinates of the incident """
-    coordinates: Coordinates
+    """ The coordinates of the incident, or None if the service has not geocoded it """
+    coordinates: Optional[Coordinates]

@@ -49,7 +49,7 @@ class IncidentDecoder(json.JSONDecoder):
             obj["date"] = datetime.datetime.fromisoformat(obj["date"])
         if "units" in obj:
             obj["units"] = [Unit(**unit) for unit in obj["units"]]
-        if "coordinates" in obj:
+        if obj.get("coordinates") is not None:
             obj["coordinates"] = Coordinates(**obj["coordinates"])
 
         return incident_type(**obj)

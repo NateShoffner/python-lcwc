@@ -1,7 +1,6 @@
 import logging
 import aiohttp
 import datetime
-import json
 import re
 
 from lcwc import Client
@@ -80,6 +79,12 @@ class ArcGISClient(Client):
             ],
         }
 
+        adapter = RestAdapter(
+            session,
+            "utility.arcgis.com",
+            "usrsvcs/servers/a1f6aa7faab44b1582029509c46dce86/rest/services/Maps/Public_LiveFeeds/MapServer/",
+        )
+
         incidents = []
 
         for cat in IncidentCategory:
@@ -92,80 +97,108 @@ class ArcGISClient(Client):
 
             layer_id = layer_mapping[cat]
 
-            """ Actual spatial extent of Lancaster County based LanCo GIS data
-            lanco_spatial = {
-                'xmin': -8548898.732776089,
-                'ymin': 4845979.963808246,
-                'xmax': -8432714.449782776,
-                'ymax': 4909881.3194545675,
-                'spatialReference': {
-                    'wkid': 102100
-                }
-            }
-            """
-
-            # seems we need to expand the spatial extent to get all incidents
-            lanco_spatial = {
-                "xmin": -8657540.868810708,
-                "ymin": 4794222.228992932,
-                "xmax": -8290643.133041878,
-                "ymax": 5048910.407239126,
-                "spatialReference": {"wkid": 102100},
+            # The service routinely holds rows whose geometry is null, either
+            # because the address has not been geocoded yet or never will be.
+            # Any query that asks for geometry (and any spatial filter, which
+            # implies one) silently drops those rows, so the incidents are
+            # fetched geometry-free and the coordinates are looked up with a
+            # second query that only the geocoded rows answer.
+            attribute_params = {
+                "f": "json",
+                "where": "1=1",
+                "returnGeometry": "false",
+                "outFields": ",".join(fields[cat]),
             }
 
-            params = {
+            geometry_params = {
                 "f": "json",
                 "where": "1=1",
                 "returnGeometry": "true",
-                "spatialRel": "esriSpatialRelIntersects",
-                "geometry": json.dumps(lanco_spatial),
-                "geometryType": "esriGeometryEnvelope",
-                "inSR": 102100,
-                "outFields": ",".join(fields[cat]),
+                "outFields": "IncidentNumber",
                 "outSR": 4326,  # return coordinates in WGS84
-                "currentTimestamp": int(
-                    datetime.datetime.now().timestamp() * 1000
-                ),  # add a timestamp to prevent caching
             }
 
-            adapter = RestAdapter(
-                session,
-                "utility.arcgis.com",
-                "usrsvcs/servers/a1f6aa7faab44b1582029509c46dce86/rest/services/Maps/Public_LiveFeeds/MapServer/",
-            )
-
             try:
-                resp = await adapter.get(endpoint=f"{layer_id}/query", ep_params=params)
-
-            except RestException as e:
+                features = await self.__query_layer(
+                    adapter, layer_id, cat, attribute_params
+                )
+            except (RestException, ArcGISException) as e:
                 self.logger.error(f"{cat} Error: {e}")
                 if throw_on_error:
                     raise e
                 continue
 
-            self.logger.debug(f"{resp.url}")
+            if not features:
+                continue
 
-            if resp.status_code != 200:
+            # a failed lookup only costs the coordinates, so the incidents are
+            # still worth returning without them
+            try:
+                located = await self.__query_layer(
+                    adapter, layer_id, cat, geometry_params
+                )
+            except (RestException, ArcGISException) as e:
+                self.logger.error(f"{cat} Coordinates error: {e}")
                 if throw_on_error:
-                    raise ArcGISException(error)
-                self.logger.error(f"Error: {resp.status_code} for {cat}")
-                continue
+                    raise e
+                located = []
 
-            error = resp.data.get("error", None)
-            if error:
-                if throw_on_error:
-                    raise ArcGISException(error)
-                self.logger.error(f"Response error: {error}")
-                continue
+            coordinates = {}
+            for feature in located:
+                geometry = feature.get("geometry")
+                if geometry is None:
+                    continue
+                number = feature["attributes"]["IncidentNumber"]
+                coordinates[number] = geometry
 
-            if "features" not in resp.data:
-                continue
+            # the same incident occasionally occupies more than one row, once
+            # geocoded and once not
+            seen = set()
 
-            for feature in resp.data["features"]:
-                incident = self.__parse_incident(cat, feature, self.agency_resolver)
+            for feature in features:
+                number = feature["attributes"]["IncidentNumber"]
+                if number in seen:
+                    self.logger.debug(f"Skipping duplicate row for incident {number}")
+                    continue
+                seen.add(number)
+
+                incident = self.__parse_incident(
+                    cat,
+                    {
+                        "attributes": feature["attributes"],
+                        "geometry": coordinates.get(number),
+                    },
+                    self.agency_resolver,
+                )
                 incidents.append(incident)
 
         return incidents
+
+    async def __query_layer(
+        self,
+        adapter: RestAdapter,
+        layer_id: int,
+        category: IncidentCategory,
+        params: dict,
+    ) -> list[dict]:
+        """Queries a single layer and returns its raw features"""
+
+        params = dict(params)
+        # add a timestamp to prevent caching
+        params["currentTimestamp"] = int(datetime.datetime.now().timestamp() * 1000)
+
+        resp = await adapter.get(endpoint=f"{layer_id}/query", ep_params=params)
+
+        self.logger.debug(f"{resp.url}")
+
+        if resp.status_code != 200:
+            raise ArcGISException(f"Error: {resp.status_code} for {category}")
+
+        error = resp.data.get("error", None)
+        if error:
+            raise ArcGISException(f"Response error: {error}")
+
+        return resp.data.get("features", [])
 
     def __parse_incident(
         self,
@@ -174,7 +207,7 @@ class ArcGISClient(Client):
         agency_resolver: AgencyResolver = None,
     ) -> ArcGISIncident:
         attributes = incident["attributes"]
-        geometry = incident["geometry"]
+        geometry = incident.get("geometry")
 
         # IncidentOrigination is epoch milliseconds, which is already an absolute
         # instant, so it converts directly to UTC with no local timezone involved
@@ -200,7 +233,7 @@ class ArcGISClient(Client):
 
         number = int(attributes["IncidentNumber"])
 
-        if "Priority" in attributes:
+        if attributes.get("Priority") is not None:
             priority = int(attributes["Priority"])
         else:
             priority = None
@@ -208,7 +241,7 @@ class ArcGISClient(Client):
         public = bool(attributes["IsPublic"])
         description = attributes["PublicType"]
 
-        coords = Coordinates(geometry["x"], geometry["y"])
+        coords = Coordinates(geometry["x"], geometry["y"]) if geometry else None
 
         incident = ArcGISIncident(
             category,
