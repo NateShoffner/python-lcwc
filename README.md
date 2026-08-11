@@ -11,17 +11,22 @@ The library features multiple clients for retrieving incidents: a web scraper, a
 ## Example
 
 ```python
-
+import asyncio
 import aiohttp
-from lcwc.feed import Client
+from lcwc.feed import FeedClient
 
-client = Client()
 
-async with aiohttp.ClientSession() as session:
-    incidents = await client.get_incidents(session)
+async def main():
+    client = FeedClient()
 
-    for incident in incidents:
-        print(f'{incident.date} - {incident.description}')
+    async with aiohttp.ClientSession() as session:
+        incidents = await client.get_incidents(session)
+
+        for incident in incidents:
+            print(f'{incident.date} - {incident.description}')
+
+
+asyncio.run(main())
 ```
 
 ## Notes

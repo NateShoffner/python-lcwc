@@ -1,23 +1,30 @@
 [project]
 name = "lcwc"
-version = "0.14.0"
+version = "0.15.0"
 authors = [
   { name="Nate Shoffner", email="nate.shoffner@gmail.com" },
 ] 
 description = "Python library for fetching the Lancaster County-Wide Communications live incident list."
 keywords = ["lcwc", "lancaster", "police", "fire", "ems", "dispatch", "911", "incident"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
 dependencies = [
-    "bs4", 
-    "aiohttp", 
-    "feedparser",
+    "beautifulsoup4",
+    # 3.14.3 is the first release without a known advisory
+    "aiohttp>=3.14.3",
+    # 6.0.11 dropped the cgi import, which python 3.13 removed
+    "feedparser>=6.0.11",
+    "pydantic>=2,<3",
     "pytz"
 ]
 

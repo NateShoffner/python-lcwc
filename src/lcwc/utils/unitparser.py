@@ -1,4 +1,6 @@
 import re
+from typing import Optional
+
 from lcwc.agencies.agencyresolver import AgencyResolver
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
@@ -8,21 +10,39 @@ class UnitParserException(Exception):
     pass
 
 
+_default_resolver: Optional[AgencyResolver] = None
+
+
+def _get_default_resolver() -> AgencyResolver:
+    """Returns the lazily-built resolver used when a caller supplies none.
+
+    Built on first use rather than at import time so that the roster is not
+    copied for every module that imports this one.
+    """
+    global _default_resolver
+    if _default_resolver is None:
+        _default_resolver = AgencyResolver()
+    return _default_resolver
+
+
 class UnitParser:
     @staticmethod
     def parse_unit(
         unit_str: str,
         category: IncidentCategory,
-        agency_resolver: AgencyResolver = AgencyResolver(),
+        agency_resolver: Optional[AgencyResolver] = None,
     ) -> Unit:
         """Parses the given unit string and returns a Unit object
 
         :param unit_str: The unit string to parse
         :param category: The category for for the unit
-        :param agency_resolver: The agency resolver to use for agency lookups (required for shorthand unit names)
+        :param agency_resolver: The agency resolver to use for agency lookups (required for shorthand unit names). Defaults to a resolver holding the known agencies.
         :return: A Unit object
         :rtype: Unit
         """
+
+        if agency_resolver is None:
+            agency_resolver = _get_default_resolver()
 
         is_shorthand = " " not in unit_str
         if is_shorthand:
