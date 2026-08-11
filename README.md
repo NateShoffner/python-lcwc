@@ -37,3 +37,5 @@ The feed client uses the RSS feed and is similar to the web client except it ove
 ### ArcGIS REST Client
 
 The ArcGIS REST client uses the ArcGIS REST API to retrieve incidents. This is the most accurate client since it uses the same data source as the LCWC website. This is still a bit of a prototype and may be subject to change. The ArcGIS REST client is the recommended client if you need more granular information such as static identifiers and coordinates.
+
+Note that `coordinates` is `None` for incidents the service has not geocoded, and that the service does not publish non-emergency EMS activity (`ROUTINE TRANSFER`, `EMS ACTIVITY`) at all. See [ArcGIS live feed service behavior](docs/arcgis-service-behavior.md) for the measured details.
