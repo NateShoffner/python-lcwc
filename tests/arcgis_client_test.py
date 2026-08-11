@@ -121,6 +121,22 @@ class ArcGISDateTest(unittest.TestCase):
                     )
 
 
+class ArcGISGeometryTest(unittest.TestCase):
+    def test_incident_without_geometry_is_parsed(self):
+        """The service leaves geometry null on incidents it has not geocoded,
+        and those incidents still belong in the results"""
+        client = ArcGISClient()
+        feature = make_feature(DATE_CASES[0][0])
+        del feature["geometry"]
+
+        incident = client._ArcGISClient__parse_incident(
+            IncidentCategory.MEDICAL, feature, None
+        )
+
+        self.assertIsNone(incident.coordinates)
+        self.assertEqual(incident.number, 2026000123)
+
+
 class WebClientTest(IsolatedAsyncioTestCase):
     async def test_fetch(self):
         async with aiohttp.ClientSession() as session:
@@ -129,6 +145,9 @@ class WebClientTest(IsolatedAsyncioTestCase):
 
             self.assertIsNotNone(incidents)
             self.assertIsInstance(incidents, list, "")
+
+            if not incidents:
+                self.skipTest("no active incidents to check")
 
             first_incident = incidents[0]
             self.assertIsNotNone(first_incident)
@@ -142,7 +161,10 @@ class WebClientTest(IsolatedAsyncioTestCase):
             self.assertIsNotNone(first_incident.number)
             # self.assertIsNotNone(first_incident.priority)
             self.assertIsNotNone(first_incident.agency)
-            self.assertIsNotNone(first_incident.coordinates)
+            # coordinates are absent for incidents the service has not geocoded
+
+            numbers = [incident.number for incident in incidents]
+            self.assertCountEqual(numbers, set(numbers), "incidents must be unique")
 
 
 if __name__ == "__main__":
