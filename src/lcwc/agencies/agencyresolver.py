@@ -11,7 +11,9 @@ class AgencyResolver:
     """Collection of dispatch and various lookup methods"""
 
     def __init__(self, load_known: bool = True):
-        self.agencies = ALL_KNOWN_AGENCIES if load_known else []
+        # copy the compiled roster so add_agency/remove_agency only affect this
+        # resolver rather than every resolver in the process
+        self.agencies = list(ALL_KNOWN_AGENCIES) if load_known else []
 
     def add_agency(self, agency: Agency):
         self.agencies.append(agency)
