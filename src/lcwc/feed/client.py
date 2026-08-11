@@ -3,7 +3,6 @@ from typing import Optional
 import aiohttp
 from lcwc import Client
 from lcwc.agencies.agencyresolver import AgencyResolver
-from lcwc.agencies.exceptions import OutOfCountyException
 
 from lcwc.feed.incident import FeedIncident
 from lcwc.feed.parser import FeedParser

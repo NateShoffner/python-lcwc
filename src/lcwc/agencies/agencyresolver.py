@@ -2,7 +2,6 @@ from typing import Optional
 
 from lcwc.agencies import ALL_KNOWN_AGENCIES
 from lcwc.agencies.agency import Agency
-from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.category import IncidentCategory
 
 

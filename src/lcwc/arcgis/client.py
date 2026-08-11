@@ -6,7 +6,6 @@ from typing import Optional
 
 from lcwc import Client
 from lcwc.agencies.agencyresolver import AgencyResolver
-from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
 from lcwc.arcgis.incident import ArcGISIncident, Coordinates
 from lcwc.category import IncidentCategory
 from lcwc.unit import Unit
