@@ -2,6 +2,7 @@ import logging
 import aiohttp
 import datetime
 import re
+from typing import Optional
 
 from lcwc import Client
 from lcwc.agencies.agencyresolver import AgencyResolver
@@ -20,9 +21,11 @@ class ArcGISException(Exception):
 class ArcGISClient(Client):
     """Client for the ArcGIS REST API"""
 
-    def __init__(self, agency_resolver: AgencyResolver = AgencyResolver()) -> None:
+    def __init__(self, agency_resolver: Optional[AgencyResolver] = None) -> None:
         super().__init__()
-        self.agency_resolver = agency_resolver
+        self.agency_resolver = (
+            agency_resolver if agency_resolver is not None else AgencyResolver()
+        )
         self.logger = logging.getLogger(__name__)
 
     @property

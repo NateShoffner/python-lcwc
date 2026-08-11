@@ -1,3 +1,5 @@
+from typing import Optional
+
 import aiohttp
 from lcwc import Client
 from lcwc.agencies.agencyresolver import AgencyResolver
@@ -11,8 +13,10 @@ class WebClient(Client):
     URL = "https://www.lcwc911.us/live-incident-list"
     """ The URL of the live incident page """
 
-    def __init__(self, agency_resolver: AgencyResolver = AgencyResolver()) -> None:
-        self.agency_resolver = agency_resolver
+    def __init__(self, agency_resolver: Optional[AgencyResolver] = None) -> None:
+        self.agency_resolver = (
+            agency_resolver if agency_resolver is not None else AgencyResolver()
+        )
         self.parser = WebParser()
 
     @property
