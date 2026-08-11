@@ -1,5 +1,5 @@
 aiohttp==3.10.2
-bs4==0.0.1
+beautifulsoup4==4.12.2
 feedparser==6.0.10
 pytz
 pydantic

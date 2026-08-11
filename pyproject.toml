@@ -15,9 +15,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "bs4", 
-    "aiohttp", 
+    "beautifulsoup4",
+    "aiohttp",
     "feedparser",
+    "pydantic>=2,<3",
     "pytz"
 ]
 
