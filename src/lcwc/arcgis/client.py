@@ -4,7 +4,6 @@ import datetime
 import json
 import re
 
-import pytz
 from lcwc import Client
 from lcwc.agencies.agencyresolver import AgencyResolver
 from lcwc.agencies.exceptions import OutOfCountyException, PendingUnitException
@@ -177,14 +176,11 @@ class ArcGISClient(Client):
         attributes = incident["attributes"]
         geometry = incident["geometry"]
 
-        # convert date to UTC
-
-        raw_date = datetime.datetime.fromtimestamp(
-            attributes["IncidentOrigination"] / 1000
+        # IncidentOrigination is epoch milliseconds, which is already an absolute
+        # instant, so it converts directly to UTC with no local timezone involved
+        date = datetime.datetime.fromtimestamp(
+            attributes["IncidentOrigination"] / 1000, tz=datetime.timezone.utc
         )
-        local_tz = pytz.timezone("America/New_York")
-        local_dt = local_tz.localize(raw_date, is_dst=None)
-        date = local_dt.astimezone(pytz.utc)
 
         municipality = attributes["IncidentMunicipality"]
 

@@ -49,7 +49,9 @@ class WebParser:
                 raw_date = datetime.datetime.strptime(
                     date_row.text.strip(), "%a, %b %d, %Y %H:%M"
                 )
-                local_dt = local_tz.localize(raw_date, is_dst=None)
+                # the page gives no offset, so the ambiguous hour of the fall-back
+                # transition is resolved to standard time rather than raising
+                local_dt = local_tz.localize(raw_date, is_dst=False)
                 date = local_dt.astimezone(pytz.utc)
 
                 description = incident_row.text.strip().strip()
